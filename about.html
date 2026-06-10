@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Fix El Paso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --sun:      #F5A623;
+      --asphalt:  #1A1A2E;
+      --concrete: #F0EDE8;
+      --dust:     #8C7B6E;
+      --white:    #FFFFFF;
+      --ink:      #2C2C3E;
+      --muted:    #6B6076;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--concrete); color: var(--ink); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--asphalt);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 56px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.35);
+    }
+    .nav-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: var(--white); text-decoration: none;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    .nav-brand span { color: var(--sun); }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 4px;
+      list-style: none;
+    }
+    .nav-links a {
+      display: block;
+      padding: 6px 13px;
+      border-radius: 6px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem; font-weight: 500;
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.07); }
+    .nav-links a.active { color: var(--sun); }
+    .nav-links a.nav-map {
+      background: var(--sun); color: var(--asphalt);
+      font-weight: 700; margin-left: 6px;
+    }
+    .nav-links a.nav-map:hover { opacity: 0.88; background: var(--sun); color: var(--asphalt); }
+
+    /* Mobile nav toggle */
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; }
+    .nav-drawer {
+      display: none; position: fixed; top: 56px; left: 0; right: 0;
+      background: var(--asphalt); z-index: 999;
+      padding: 12px 16px 16px; border-top: 1px solid #2a2a40;
+      flex-direction: column; gap: 4px;
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      display: block; padding: 10px 14px; border-radius: 7px;
+      font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 500;
+      color: #aaa; text-decoration: none; transition: color 0.15s, background 0.15s;
+    }
+    .nav-drawer a:hover, .nav-drawer a.active { color: var(--sun); background: rgba(245,166,35,0.08); }
+    .nav-drawer a.nav-map {
+      background: var(--sun); color: var(--asphalt); font-weight: 700; margin-top: 6px;
+    }
+
+    /* ── SECTIONS ── */
+    section { min-height: 100vh; padding: 96px 24px 72px; }
+
+    /* ── MISSION ── */
+    #mission {
+      background: var(--asphalt);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mission-inner {
+      max-width: 760px; width: 100%;
+    }
+    .mission-eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--sun); margin-bottom: 18px;
+    }
+    .mission-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700; color: var(--white);
+      letter-spacing: -0.03em; line-height: 1.15;
+      margin-bottom: 48px;
+    }
+    .mission-headline em { color: var(--sun); font-style: normal; }
+
+    .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px; }
+    .pillar {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 24px 22px 22px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .pillar:hover { background: rgba(245,166,35,0.06); border-color: rgba(245,166,35,0.3); }
+    .pillar-icon { font-size: 1.5rem; margin-bottom: 14px; }
+    .pillar-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--sun); margin-bottom: 10px;
+    }
+    .pillar-body { font-size: 0.875rem; line-height: 1.68; color: #b5aead; }
+
+    .mission-commitment {
+      margin-top: 36px;
+      padding: 22px 24px;
+      background: rgba(245,166,35,0.08);
+      border-left: 3px solid var(--sun);
+      border-radius: 0 8px 8px 0;
+    }
+    .mission-commitment-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--sun); margin-bottom: 8px;
+    }
+    .mission-commitment p { font-size: 0.88rem; line-height: 1.7; color: #c5bdb9; }
+    .mission-commitment p + p { margin-top: 10px; }
+
+    /* ── FOUNDERS ── */
+    #founders {
+      background: var(--concrete);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .founders-inner { max-width: 900px; width: 100%; }
+    .section-eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--sun); margin-bottom: 10px;
+    }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 700;
+      color: var(--asphalt); letter-spacing: -0.02em; line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .section-sub {
+      font-size: 0.95rem; line-height: 1.6; color: var(--dust);
+      max-width: 520px; margin-bottom: 48px;
+    }
+
+    .founders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    .founder-card {
+      background: var(--white);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .founder-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,0.13); }
+
+    .founder-photo-wrap {
+      width: 100%; aspect-ratio: 1 / 1;
+      background: var(--asphalt);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .founder-photo-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: none; /* shown when src is set */
+    }
+    .founder-initials {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem; font-weight: 700; color: var(--sun);
+      user-select: none;
+    }
+    .founder-photo-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(26,26,46,0.7);
+      font-size: 0.68rem; color: rgba(255,255,255,0.5);
+      text-align: center; padding: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.06em;
+    }
+
+    .founder-info { padding: 20px 22px 22px; }
+    .founder-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--asphalt); margin-bottom: 3px;
+    }
+    .founder-role {
+      font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--sun); margin-bottom: 14px;
+    }
+    .founder-school {
+      font-size: 0.8rem; color: var(--dust); margin-bottom: 16px;
+    }
+    .founder-contact {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .founder-contact a {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.82rem; color: var(--ink);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .founder-contact a:hover { color: var(--sun); }
+    .founder-contact-icon { font-size: 0.9rem; width: 18px; text-align: center; flex-shrink: 0; }
+
+    /* ── CONTACT ── */
+    #contact {
+      background: var(--asphalt);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .contact-inner { max-width: 660px; width: 100%; }
+    .contact-inner .section-title { color: var(--white); }
+    .contact-inner .section-sub { color: #a09898; }
+
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .contact-field { display: flex; flex-direction: column; gap: 6px; }
+    .contact-field.full { grid-column: 1 / -1; }
+    .contact-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #7a7090;
+    }
+    .contact-field input,
+    .contact-field textarea,
+    .contact-field select {
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 11px 14px;
+      font-family: 'Inter', sans-serif; font-size: 0.88rem;
+      color: var(--white); transition: border-color 0.15s;
+      width: 100%;
+    }
+    .contact-field input::placeholder,
+    .contact-field textarea::placeholder { color: #5a5468; }
+    .contact-field input:focus,
+    .contact-field textarea:focus,
+    .contact-field select:focus { outline: none; border-color: var(--sun); }
+    .contact-field textarea { resize: vertical; min-height: 120px; }
+    .contact-field select option { background: var(--asphalt); color: var(--white); }
+
+    .btn-send {
+      width: 100%; background: var(--sun); color: var(--asphalt);
+      border: none; border-radius: 8px; padding: 14px;
+      font-family: 'Space Grotesk', sans-serif; font-size: 0.92rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s, transform 0.15s;
+      margin-top: 4px;
+    }
+    .btn-send:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .contact-divider {
+      display: flex; align-items: center; gap: 14px;
+      margin: 28px 0 22px;
+    }
+    .contact-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+    .contact-divider-text { font-size: 0.72rem; color: #5a5468; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .contact-info-row {
+      display: flex; flex-wrap: wrap; gap: 12px;
+    }
+    .contact-info-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 0.83rem; color: #ccc;
+      text-decoration: none; transition: border-color 0.15s, color 0.15s;
+      flex: 1; min-width: 200px;
+    }
+    .contact-info-chip:hover { border-color: var(--sun); color: var(--sun); }
+    .contact-info-chip-icon { font-size: 1rem; flex-shrink: 0; }
+
+    .form-success {
+      display: none; text-align: center;
+      padding: 32px 0;
+    }
+    .form-success-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .form-success h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem; font-weight: 700; color: var(--white); margin-bottom: 8px;
+    }
+    .form-success p { font-size: 0.88rem; color: #a09898; line-height: 1.6; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0f0f1e;
+      padding: 28px 24px;
+      text-align: center;
+      font-size: 0.75rem; color: #444;
+      line-height: 1.8;
+    }
+    footer a { color: #666; text-decoration: none; }
+    footer a:hover { color: var(--sun); }
+    .footer-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem; font-weight: 700; color: #666;
+      margin-bottom: 6px;
+    }
+    .footer-brand span { color: var(--sun); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .contact-field.full { grid-column: 1; }
+      section { padding: 88px 20px 60px; }
+    }
+    @media (min-width: 641px) {
+      .nav-drawer { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="nav-brand">Fix<span> El Paso</span></a>
+  <ul class="nav-links">
+    <li><a href="#mission" onclick="setActive(this)">Mission</a></li>
+    <li><a href="#founders" onclick="setActive(this)">Founders</a></li>
+    <li><a href="#contact" onclick="setActive(this)">Contact</a></li>
+    <li><a href="index.html" class="nav-map">View Map →</a></li>
+  </ul>
+  <button class="nav-hamburger" onclick="toggleDrawer()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-drawer" id="navDrawer">
+  <a href="#mission" onclick="closeDrawer()">Mission</a>
+  <a href="#founders" onclick="closeDrawer()">Founders</a>
+  <a href="#contact" onclick="closeDrawer()">Contact</a>
+  <a href="index.html" class="nav-map" onclick="closeDrawer()">View Map →</a>
+</div>
+
+<!-- ── SECTION 1: MISSION ── -->
+<section id="mission">
+  <div class="mission-inner">
+
+    <div class="mission-eyebrow reveal">Fix El Paso · El Paso, TX</div>
+    <h1 class="mission-headline reveal">
+      Stronger cities start with<br><em>engaged residents.</em>
+    </h1>
+
+    <div class="pillars">
+      <div class="pillar reveal">
+        <div class="pillar-icon">🗺️</div>
+        <div class="pillar-title">Our Mission</div>
+        <p class="pillar-body">To strengthen communication between El Pasoans and local government by providing a community-driven platform for documenting and raising awareness of infrastructure concerns throughout El Paso.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-icon">🏙️</div>
+        <div class="pillar-title">Our Vision</div>
+        <p class="pillar-body">An El Paso where residents and government work together to improve our city and build stronger communities — through visibility, participation, and a more responsive, connected city.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-icon">🤝</div>
+        <div class="pillar-title">Who We Serve</div>
+        <p class="pillar-body">Through reporting and public engagement, we help residents become active participants in improving safety and quality of life — while making sure city officials are made aware of concerns in every neighborhood.</p>
+      </div>
+    </div>
+
+    <div class="mission-commitment reveal">
+      <div class="mission-commitment-label">Our Commitment</div>
+      <p>This project is meant to complement and support existing city services, including EP311. Rather than replacing them, we promote community awareness and provide residents with an additional way to document and share concerns affecting their neighborhoods.</p>
+      <p>We believe that meaningful change begins with transparency and engaged residents. By working together, we can build a safer, better-maintained El Paso.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── SECTION 2: FOUNDERS ── -->
+<section id="founders">
+  <div class="founders-inner">
+    <div class="section-eyebrow reveal">The Team</div>
+    <h2 class="section-title reveal">Built by El Paso students,<br>for El Paso.</h2>
+    <p class="section-sub reveal">Three high schoolers who got tired of waiting for someone else to fix it.</p>
+
+    <div class="founders-grid">
+
+      <!-- Daniel -->
+      <div class="founder-card reveal">
+        <div class="founder-photo-wrap">
+          <img id="photo-dd" alt="Daniel Dominguez" />
+          <div class="founder-initials" id="initials-dd">DD</div>
+          <div class="founder-photo-label">Photo coming soon</div>
+        </div>
+        <div class="founder-info">
+          <div class="founder-name">Daniel Dominguez</div>
+          <div class="founder-role">Team Lead</div>
+          <div class="founder-school">🏫 Eastlake High School</div>
+          <div class="founder-contact">
+            <a href="tel:+19152795659">
+              <span class="founder-contact-icon">📞</span>
+              (915) 279-5659
+            </a>
+            <a href="mailto:fixelpaso@gmail.com">
+              <span class="founder-contact-icon">✉️</span>
+              fixelpaso@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Angel -->
+      <div class="founder-card reveal">
+        <div class="founder-photo-wrap">
+          <img id="photo-ac" alt="Angel Chavez" />
+          <div class="founder-initials" id="initials-ac">AC</div>
+          <div class="founder-photo-label">Photo coming soon</div>
+        </div>
+        <div class="founder-info">
+          <div class="founder-name">Angel Chavez</div>
+          <div class="founder-role">Outreach</div>
+          <div class="founder-school">🏫 Bel Air High School</div>
+          <div class="founder-contact">
+            <a href="tel:+19154499328">
+              <span class="founder-contact-icon">📞</span>
+              (915) 449-9328
+            </a>
+            <a href="mailto:fixelpaso@gmail.com">
+              <span class="founder-contact-icon">✉️</span>
+              fixelpaso@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ian -->
+      <div class="founder-card reveal">
+        <div class="founder-photo-wrap">
+          <img id="photo-iv" alt="Ian Vazquez" />
+          <div class="founder-initials" id="initials-iv">IV</div>
+          <div class="founder-photo-label">Photo coming soon</div>
+        </div>
+        <div class="founder-info">
+          <div class="founder-name">Ian Vazquez</div>
+          <div class="founder-role">Programmer</div>
+          <div class="founder-school">🏫 Eastlake High School</div>
+          <div class="founder-contact">
+            <a href="tel:+19152174602">
+              <span class="founder-contact-icon">📞</span>
+              (915) 217-4602
+            </a>
+            <a href="mailto:fixelpaso@gmail.com">
+              <span class="founder-contact-icon">✉️</span>
+              fixelpaso@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 3: CONTACT ── -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-eyebrow reveal">Get in Touch</div>
+    <h2 class="section-title reveal">We'd love to hear<br>from you.</h2>
+    <p class="section-sub reveal">Have a question, a partnership idea, or just want to say hi? Send us a message and we'll get back to you.</p>
+
+    <div id="contactForm">
+      <div class="contact-grid reveal">
+        <div class="contact-field">
+          <label class="contact-label" for="cf-name">Your name</label>
+          <input type="text" id="cf-name" placeholder="Jane Smith" />
+        </div>
+        <div class="contact-field">
+          <label class="contact-label" for="cf-email">Email address</label>
+          <input type="email" id="cf-email" placeholder="you@example.com" />
+        </div>
+        <div class="contact-field full">
+          <label class="contact-label" for="cf-subject">Subject</label>
+          <select id="cf-subject">
+            <option value="">Select a topic…</option>
+            <option value="general">General question</option>
+            <option value="partnership">Partnership / collaboration</option>
+            <option value="media">Media inquiry</option>
+            <option value="issue">Issue with the map</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="contact-field full">
+          <label class="contact-label" for="cf-message">Message</label>
+          <textarea id="cf-message" placeholder="Tell us what's on your mind…"></textarea>
+        </div>
+      </div>
+      <button class="btn-send reveal" onclick="sendMessage()">Send Message</button>
+    </div>
+
+    <div class="form-success" id="formSuccess">
+      <div class="form-success-icon">✅</div>
+      <h3>Message sent!</h3>
+      <p>Thanks for reaching out. We'll get back to you at the email you provided within a day or two.</p>
+    </div>
+
+    <div class="contact-divider reveal">
+      <div class="contact-divider-line"></div>
+      <div class="contact-divider-text">Or reach us directly</div>
+      <div class="contact-divider-line"></div>
+    </div>
+
+    <div class="contact-info-row reveal">
+      <a class="contact-info-chip" href="mailto:fixelpaso@gmail.com">
+        <span class="contact-info-chip-icon">✉️</span>
+        fixelpaso@gmail.com
+      </a>
+      <a class="contact-info-chip" href="https://xh3nons.github.io/FixElPaso" target="_blank">
+        <span class="contact-info-chip-icon">🗺️</span>
+        View the Map
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">Fix<span> El Paso</span></div>
+  Built by El Paso students · <a href="mailto:fixelpaso@gmail.com">fixelpaso@gmail.com</a><br>
+  Built with ♥ in El Paso, TX · <a href="index.html">Back to Map</a>
+</footer>
+
+<script>
+  // ── NAV active state ──
+  function setActive(el) {
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ── Mobile drawer ──
+  function toggleDrawer() {
+    document.getElementById('navDrawer').classList.toggle('open');
+  }
+  function closeDrawer() {
+    document.getElementById('navDrawer').classList.remove('open');
+  }
+
+  // ── Scroll spy ──
+  const sections = ['mission', 'founders', 'contact'];
+  const navAs = document.querySelectorAll('.nav-links a:not(.nav-map)');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 80) current = id;
+    });
+    navAs.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }, { passive: true });
+
+  // ── Scroll reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Contact form → mailto ──
+  function sendMessage() {
+    const name    = document.getElementById('cf-name').value.trim();
+    const email   = document.getElementById('cf-email').value.trim();
+    const subject = document.getElementById('cf-subject').value;
+    const message = document.getElementById('cf-message').value.trim();
+
+    if (!name || !email || !message) {
+      alert('Please fill in your name, email, and message before sending.');
+      return;
+    }
+
+    const subjectLine = encodeURIComponent('Fix El Paso — ' + (subject || 'Message') + ' from ' + name);
+    const body = encodeURIComponent(
+      'From: ' + name + '\nEmail: ' + email + '\n\n' + message
+    );
+    window.location.href = 'mailto:fixelpaso@gmail.com?subject=' + subjectLine + '&body=' + body;
+
+    // Show success state after short delay
+    setTimeout(() => {
+      document.getElementById('contactForm').style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'block';
+    }, 600);
+  }
+</script>
+</body>
+</html>
