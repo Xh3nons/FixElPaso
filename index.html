@@ -460,27 +460,30 @@ function getLocation(){
   navigator.geolocation.getCurrentPosition(
     pos=>{
       userLat=pos.coords.latitude; userLng=pos.coords.longitude;
+      locationConfirmed=true;
       status.className='location-status ok';
-      status.textContent=`Locked (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;
+      status.textContent='GPS locked';
       checkReady();
     },
-    ()=>{status.className='location-status err';status.textContent='GPS failed — type an address instead.';}
+    ()=>{status.className='location-status err';status.textContent='GPS failed — enter an intersection below.';}
   );
 }
 
 function onAddressInput(){ checkReady(); if(document.getElementById('addressInput').value.trim().length > 2) fetchSuggestions(document.getElementById('addressInput').value.trim()); else hideAutocomplete(); }
 function checkReady(){
-  const hasLocation = userLat || document.getElementById('addressInput').value.trim().length > 2;
+  const hasLocation = userLat || (locationConfirmed);
   document.getElementById('submitBtn').disabled = !(selectedCat && hasLocation);
 }
 
 function resetForm(){
   selectedCat=userLat=userLng=selectedPhotoFile=null;
   document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
-  document.getElementById('addressInput').value='';
+  if(document.getElementById('street1Input')) document.getElementById('street1Input').value='';
+  if(document.getElementById('street2Input')) document.getElementById('street2Input').value='';
+  locationConfirmed=false;
   document.getElementById('descInput').value='';
   document.getElementById('locStatus').className='location-status';
-  document.getElementById('locStatus').textContent='GPS or address required';
+  document.getElementById('locStatus').textContent='GPS or intersection required';
   document.getElementById('submitBtn').disabled=true;
   document.getElementById('photoPreview').style.display='none';
   document.getElementById('photoPreview').src='';
@@ -500,19 +503,25 @@ async function geocodeAddress(address){
 }
 
 async function submitReport(){
-  const desc=document.getElementById('descInput').value.trim()||'No description.';
-  const address=document.getElementById('addressInput').value.trim();
+  const desc=document.getElementById('descInput').value.trim()||'';
+  const s1 = document.getElementById('street1Input') ? document.getElementById('street1Input').value.trim() : '';
+  const s2 = document.getElementById('street2Input') ? document.getElementById('street2Input').value.trim() : '';
+  const address = s1 && s2 ? s1+' & '+s2 : (s1 || s2);
   const btn=document.getElementById('submitBtn');
   const status=document.getElementById('photoStatus');
-  btn.disabled=true; btn.textContent='Submitting...';
-  let photoUrl=null;
 
-  // Convert address to coordinates if no GPS
-  if(!userLat && address){
-    btn.textContent='Looking up address...';
-    const coords=await geocodeAddress(address);
-    if(coords){ userLat=coords.lat; userLng=coords.lng; }
+  // Validate before doing anything
+  const errors = validateReport(selectedCat, desc, userLat, userLng);
+  if(errors.length > 0){
+    showToast(errors[0]);
+    return;
   }
+
+  btn.disabled=true;
+  let photoUrl=null;
+  const finalDesc = desc || 'No description provided.';
+
+  // location already set via GPS or street selection
 
   if(selectedPhotoFile&&window._uploadPhoto){
     status.textContent='Uploading photo...';
@@ -528,7 +537,7 @@ async function submitReport(){
     status.textContent='Storage not ready — submitting without photo.';
   }
 
-  const report={lat:userLat||null,lng:userLng||null,cat:selectedCat,desc,address,photoUrl,timestamp:new Date()};
+  const report={lat:userLat||null,lng:userLng||null,cat:selectedCat,desc:finalDesc,address,photoUrl,timestamp:new Date()};
 
   if(window._addReport){
     try{
@@ -550,49 +559,138 @@ async function submitReport(){
 
 
 let autocompleteTimer = null;
+let street1Selected = false, street2Selected = false;
 
-function fetchSuggestions(query){
+function fetchSuggestions(query, num){
   clearTimeout(autocompleteTimer);
   autocompleteTimer = setTimeout(async ()=>{
     try{
       const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query+', El Paso, TX')}&limit=5&countrycodes=us`);
       const data = await res.json();
-      showAutocomplete(data);
-    }catch(e){ hideAutocomplete(); }
+      showAutocomplete(data, num);
+    }catch(e){ hideAutocomplete(num); }
   }, 300);
 }
 
-function showAutocomplete(results){
-  const list = document.getElementById('autocomplete-list');
-  if(!results || results.length === 0){ hideAutocomplete(); return; }
-  list.innerHTML = results.map((r,i) =>
-    `<div onclick="selectSuggestion('${r.display_name.replace(/'/g,"\\'")}', ${r.lat}, ${r.lon})"
-      style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted2);cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.15s;"
+function showAutocomplete(results, num){
+  const list = document.getElementById('autocomplete-list-'+num);
+  if(!results || results.length === 0){ hideAutocomplete(num); return; }
+  list.innerHTML = results.map(r => {
+    // Show just the street name, not full address
+    const parts = r.display_name.split(',');
+    const short = parts[0].trim();
+    return `<div onclick="selectStreet(${num}, '${short.replace(/'/g,"\\'")}', '${r.display_name.replace(/'/g,"\\'")}', ${r.lat}, ${r.lon})"
+      style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted2);cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);"
       onmouseover="this.style.background='rgba(255,107,0,0.08)';this.style.color='var(--text)'"
       onmouseout="this.style.background='';this.style.color='var(--muted2)'"
-    >${r.display_name}</div>`
-  ).join('');
+    >${short}</div>`;
+  }).join('');
   list.style.display = 'block';
 }
 
-function hideAutocomplete(){
-  document.getElementById('autocomplete-list').style.display = 'none';
+function hideAutocomplete(num){
+  const el = document.getElementById('autocomplete-list-'+(num||1));
+  if(el) el.style.display = 'none';
+  const el2 = document.getElementById('autocomplete-list-2');
+  if(!num && el2) el2.style.display = 'none';
 }
 
-function selectSuggestion(name, lat, lng){
-  document.getElementById('addressInput').value = name;
-  userLat = parseFloat(lat);
-  userLng = parseFloat(lng);
-  const status = document.getElementById('locStatus');
-  status.className = 'location-status ok';
-  status.textContent = 'Address confirmed';
-  hideAutocomplete();
-  checkReady();
+function selectStreet(num, short, full, lat, lng){
+  document.getElementById('street'+num+'Input').value = short;
+  if(num===1){ street1Selected=true; window._street1={lat:parseFloat(lat),lng:parseFloat(lng),name:short}; }
+  if(num===2){ street2Selected=true; window._street2={lat:parseFloat(lat),lng:parseFloat(lng),name:short}; }
+  hideAutocomplete(num);
+  // If both streets selected, average their coordinates as the intersection point
+  if(street1Selected && street2Selected && window._street1 && window._street2){
+    userLat = (window._street1.lat + window._street2.lat) / 2;
+    userLng = (window._street1.lng + window._street2.lng) / 2;
+    locationConfirmed = true;
+    const status = document.getElementById('locStatus');
+    status.className = 'location-status ok';
+    status.textContent = window._street1.name + ' & ' + window._street2.name;
+    checkReady();
+  } else if(num===1 && street1Selected){
+    // One street entered — use it directly but don't confirm yet
+    userLat = window._street1.lat; userLng = window._street1.lng;
+    locationConfirmed = true;
+    const status = document.getElementById('locStatus');
+    status.className = 'location-status ok';
+    status.textContent = short + ' (add Street 2 for more accuracy)';
+    checkReady();
+  }
 }
 
 document.addEventListener('click', function(e){
-  if(!e.target.closest('#autocomplete-list') && e.target.id !== 'addressInput') hideAutocomplete();
+  if(!e.target.closest('[id^="autocomplete-list"]') && !['street1Input','street2Input'].includes(e.target.id)){
+    hideAutocomplete(1); hideAutocomplete(2);
+  }
 });
+
+
+// ── BOUNDARIES ──
+const BOUNDARIES = {
+  el_paso_county: {
+    name: 'El Paso County',
+    // Bounding box: minLat, maxLat, minLng, maxLng
+    box: [31.6, 32.1, -106.7, -105.95]
+  },
+  juarez: {
+    name: 'Ciudad Juárez',
+    box: [31.5, 31.8, -106.6, -106.3]
+  }
+};
+
+function isInAllowedArea(lat, lng) {
+  return Object.values(BOUNDARIES).some(region => {
+    const [minLat, maxLat, minLng, maxLng] = region.box;
+    return lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
+  });
+}
+
+// ── CONTENT FILTER ──
+const BANNED_WORDS = [
+  'fuck','shit','ass','bitch','cunt','dick','cock','pussy','nigger','nigga',
+  'faggot','retard','spic','wetback','chink','kike','bastard','whore','slut',
+  'nazi','kkk','rape','kill yourself','kys'
+];
+
+function containsBannedContent(text) {
+  if(!text) return false;
+  const lower = text.toLowerCase().replace(/[^a-z0-9\s]/g,'');
+  return BANNED_WORDS.some(word => lower.includes(word));
+}
+
+function isGibberish(text) {
+  if(!text || text.length < 3) return false;
+  // Flag if more than 60% is repeated characters or no vowels in 10+ char string
+  const noSpaces = text.replace(/\s/g,'');
+  if(noSpaces.length > 10) {
+    const vowels = (noSpaces.match(/[aeiouAEIOU]/g)||[]).length;
+    if(vowels / noSpaces.length < 0.05) return true;
+  }
+  // Flag keyboard mash patterns
+  if(/^[asdfghjklqwertyuiopzxcvbnm]{8,}$/i.test(noSpaces) && !/[aeiou]{2}/i.test(noSpaces)) return true;
+  return false;
+}
+
+function validateReport(cat, desc, lat, lng) {
+  const errors = [];
+  if(!cat) errors.push('Please select a category.');
+  if(!lat || !lng) errors.push('Please provide a location.');
+  if(lat && lng && !isInAllowedArea(lat, lng)) {
+    errors.push('Location must be within El Paso County or Ciudad Juárez.');
+  }
+  if(desc && containsBannedContent(desc)) {
+    errors.push('Description contains inappropriate content.');
+  }
+  if(desc && isGibberish(desc)) {
+    errors.push('Please enter a real description.');
+  }
+  if(desc && desc.length > 500) {
+    errors.push('Description must be under 500 characters.');
+  }
+  return errors;
+}
 
 function showToast(msg){
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
@@ -602,8 +700,9 @@ function showToast(msg){
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
-import {getFirestore,collection,addDoc,query,orderBy,onSnapshot} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
+import {getFirestore,collection,query,orderBy,onSnapshot} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
 import {getStorage,ref,uploadBytes,getDownloadURL} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-storage.js";
+import {getFunctions,httpsCallable} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-functions.js";
 
 const config={
   apiKey:"AIzaSyDr0KizTV4pNPV2NAff2JpCPkFh3WjeKz0",
@@ -619,7 +718,12 @@ try{
   const db=getFirestore(app);
   const storage=getStorage(app);
 
-  window._addReport=report=>addDoc(collection(db,'reports'),report);
+  const functionsInstance = getFunctions(app);
+  const submitReportFn = httpsCallable(functionsInstance, 'submitReport');
+  window._addReport = async (report) => {
+    const result = await submitReportFn(report);
+    return result.data;
+  };
 
   window._uploadPhoto=async(file)=>{
     const compressed=await compressImage(file,1200,0.8);
