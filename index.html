@@ -485,6 +485,15 @@ function resetForm(){
   document.getElementById('photoStatus').textContent='';
 }
 
+async function geocodeAddress(address){
+  try{
+    const res=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address+', El Paso, TX')}&limit=1`);
+    const data=await res.json();
+    if(data&&data[0]) return {lat:parseFloat(data[0].lat),lng:parseFloat(data[0].lon)};
+  }catch(e){ console.warn('Geocode failed:',e); }
+  return null;
+}
+
 async function submitReport(){
   const desc=document.getElementById('descInput').value.trim()||'No description.';
   const address=document.getElementById('addressInput').value.trim();
@@ -492,6 +501,13 @@ async function submitReport(){
   const status=document.getElementById('photoStatus');
   btn.disabled=true; btn.textContent='Submitting...';
   let photoUrl=null;
+
+  // Convert address to coordinates if no GPS
+  if(!userLat && address){
+    btn.textContent='Looking up address...';
+    const coords=await geocodeAddress(address);
+    if(coords){ userLat=coords.lat; userLng=coords.lng; }
+  }
 
   if(selectedPhotoFile&&window._uploadPhoto){
     status.textContent='Uploading photo...';
@@ -609,4 +625,3 @@ function compressImage(file,maxPx,quality){
 </script>
 </body>
 </html>
-
