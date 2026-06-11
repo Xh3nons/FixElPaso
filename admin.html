@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Fix El Paso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--sun:#F5A623;--asphalt:#1A1A2E;--concrete:#F0EDE8;--dust:#8C7B6E;--white:#FFFFFF;--red:#E74C3C;}
+    body{font-family:'Inter',sans-serif;background:var(--concrete);min-height:100vh;}
+    header{position:sticky;top:0;z-index:100;background:var(--asphalt);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;box-shadow:0 2px 12px rgba(0,0,0,0.4);}
+    .brand{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;letter-spacing:-0.02em;}
+    .brand span{color:var(--sun);}
+    .admin-badge{background:#2d1a1a;color:var(--red);font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:4px;font-family:'Space Grotesk',sans-serif;letter-spacing:0.06em;}
+    .page{max-width:720px;margin:0 auto;padding:40px 24px 80px;}
+    /* LOGIN */
+    .login-card{background:var(--white);border-radius:12px;padding:40px;max-width:380px;margin:60px auto;box-shadow:0 4px 24px rgba(0,0,0,0.1);text-align:center;}
+    .login-icon{font-size:2.5rem;margin-bottom:16px;}
+    .login-title{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;color:var(--asphalt);margin-bottom:6px;}
+    .login-sub{font-size:0.82rem;color:var(--dust);margin-bottom:24px;}
+    input[type="password"]{width:100%;border:1.5px solid #DDD;border-radius:7px;padding:10px 14px;font-family:'Inter',sans-serif;font-size:0.9rem;color:var(--asphalt);background:var(--concrete);margin-bottom:12px;}
+    input[type="password"]:focus{outline:none;border-color:var(--sun);}
+    .btn-login{width:100%;background:var(--asphalt);color:var(--white);border:none;border-radius:8px;padding:12px;font-family:'Space Grotesk',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;}
+    .btn-login:hover{background:#2d2d4e;}
+    .login-error{color:var(--red);font-size:0.8rem;margin-top:8px;display:none;}
+    /* PANEL */
+    .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+    .panel-title{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--asphalt);}
+    .panel-meta{font-size:0.8rem;color:var(--dust);}
+    .btn-logout{background:none;border:1px solid #DDD;border-radius:6px;padding:6px 14px;font-size:0.8rem;cursor:pointer;color:var(--dust);}
+    .btn-logout:hover{border-color:var(--red);color:var(--red);}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+    .filter-btn{border:1.5px solid #DDD;border-radius:20px;padding:5px 14px;font-size:0.78rem;cursor:pointer;background:var(--white);color:var(--asphalt);font-family:'Inter',sans-serif;transition:all 0.15s;}
+    .filter-btn:hover,.filter-btn.active{border-color:var(--asphalt);background:var(--asphalt);color:var(--white);}
+    .report-card{background:var(--white);border-radius:10px;padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;gap:14px;align-items:flex-start;}
+    .report-thumb{width:60px;height:60px;border-radius:7px;object-fit:cover;flex-shrink:0;background:#EEE;}
+    .report-thumb-placeholder{width:60px;height:60px;border-radius:7px;background:var(--concrete);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+    .report-info{flex:1;min-width:0;}
+    .report-cat{font-family:'Space Grotesk',sans-serif;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+    .report-desc{font-size:0.84rem;color:#444;margin-top:3px;line-height:1.4;}
+    .report-meta{font-size:0.72rem;color:var(--dust);margin-top:5px;}
+    .btn-delete{background:#fdf3f2;color:var(--red);border:1px solid #f5c6c2;border-radius:6px;padding:6px 12px;font-size:0.76rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:all 0.15s;font-family:'Space Grotesk',sans-serif;}
+    .btn-delete:hover{background:var(--red);color:var(--white);border-color:var(--red);}
+    .btn-resolve{background:#eafaf1;color:#27AE60;border:1px solid #a9dfbf;border-radius:6px;padding:6px 12px;font-size:0.76rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:all 0.15s;font-family:'Space Grotesk',sans-serif;margin-bottom:4px;}
+    .btn-resolve:hover{background:#27AE60;color:var(--white);border-color:#27AE60;}
+    .btn-reopen{background:#fef9f0;color:#F39C12;border:1px solid #fad7a0;border-radius:6px;padding:6px 12px;font-size:0.76rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:all 0.15s;font-family:'Space Grotesk',sans-serif;margin-bottom:4px;}
+    .btn-reopen:hover{background:#F39C12;color:var(--white);}
+    .report-card.resolved{opacity:0.55;border-left:3px solid #27AE60;}
+    .resolved-badge{display:inline-block;background:#eafaf1;color:#27AE60;font-size:0.68rem;font-weight:700;padding:2px 7px;border-radius:4px;font-family:'Space Grotesk',sans-serif;letter-spacing:0.06em;margin-left:6px;}
+    .empty{text-align:center;padding:48px 0;color:var(--dust);font-size:0.88rem;}
+    .loading{text-align:center;padding:48px 0;color:var(--dust);}
+    .spinner{width:32px;height:32px;border:3px solid #DDD;border-top-color:var(--sun);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:3000;background:var(--asphalt);color:var(--white);padding:10px 22px;border-radius:24px;font-size:0.84rem;opacity:0;transition:opacity 0.3s;pointer-events:none;font-family:'Space Grotesk',sans-serif;border-left:3px solid var(--sun);}
+    #toast.show{opacity:1;}
+    .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;}
+    .stat-box{background:var(--white);border-radius:8px;padding:14px 18px;flex:1;min-width:100px;box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+    .stat-num{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:var(--asphalt);}
+    .stat-lbl{font-size:0.72rem;color:var(--dust);margin-top:2px;}
+  </style>
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html">Fix <span>El Paso</span></a>
+  <span class="admin-badge">ADMIN</span>
+</header>
+
+<!-- LOGIN -->
+<div id="loginSection">
+  <div class="login-card">
+    <div class="login-icon">🔒</div>
+    <div class="login-title">Admin Access</div>
+    <div class="login-sub">This page is for Fix El Paso team members only.</div>
+    <input type="password" id="pwInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()"/>
+    <button class="btn-login" onclick="login()">Login</button>
+    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="panelSection" style="display:none">
+  <div class="page">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">🔧 Admin Panel</div>
+        <div class="panel-meta">Manage community reports</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Log out</button>
+    </div>
+
+    <div class="stat-row" id="statRow">
+      <div class="stat-box"><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">Total Reports</div></div>
+      <div class="stat-box"><div class="stat-num" id="statPhotos">—</div><div class="stat-lbl">With Photos</div></div>
+      <div class="stat-box"><div class="stat-num" id="statResolved">—</div><div class="stat-lbl">Resolved</div></div>
+      <div class="stat-box"><div class="stat-num" id="statToday">—</div><div class="stat-lbl">Today</div></div>
+    </div>
+
+    <div class="filters" id="filterRow">
+      <button class="filter-btn active" data-cat="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" data-cat="resolved" onclick="setFilter('resolved',this)" style="border-color:#27AE60;color:#27AE60">✓ Resolved</button>
+      <button class="filter-btn" data-cat="pothole"  onclick="setFilter('pothole',this)"  style="border-color:#E74C3C;color:#E74C3C">Pothole</button>
+      <button class="filter-btn" data-cat="light"    onclick="setFilter('light',this)"    style="border-color:#F39C12;color:#F39C12">Streetlight</button>
+      <button class="filter-btn" data-cat="flood"    onclick="setFilter('flood',this)"    style="border-color:#2980B9;color:#2980B9">Flooding</button>
+      <button class="filter-btn" data-cat="sidewalk" onclick="setFilter('sidewalk',this)" style="border-color:#8E44AD;color:#8E44AD">Sidewalk</button>
+      <button class="filter-btn" data-cat="signage"  onclick="setFilter('signage',this)"  style="border-color:#27AE60;color:#27AE60">Signage</button>
+      <button class="filter-btn" data-cat="other"    onclick="setFilter('other',this)"    style="border-color:#7F8C8D;color:#7F8C8D">Other</button>
+    </div>
+
+    <div id="reportList"><div class="loading"><div class="spinner"></div>Loading reports…</div></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+import {getFirestore,collection,deleteDoc,doc,updateDoc,query,orderBy,onSnapshot} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
+
+const ADMIN_PASSWORD = 'fixelpaso2024'; // ← change this to your own password
+
+const CATS={
+  pothole:{label:'Pothole',color:'#E74C3C',icon:'🕳️'},
+  light:{label:'Streetlight',color:'#F39C12',icon:'💡'},
+  flood:{label:'Flooding',color:'#2980B9',icon:'💧'},
+  sidewalk:{label:'Sidewalk',color:'#8E44AD',icon:'🚶'},
+  signage:{label:'Signage',color:'#27AE60',icon:'🪧'},
+  other:{label:'Other',color:'#7F8C8D',icon:'📌'},
+};
+
+const config={
+  apiKey:"AIzaSyDr0KizTV4pNPV2NAff2JpCPkFh3WjeKz0",
+  authDomain:"fix-el-paso.firebaseapp.com",
+  projectId:"fix-el-paso",
+  storageBucket:"fix-el-paso.firebasestorage.app",
+  messagingSenderId:"316586721705",
+  appId:"1:316586721705:web:30163116acb500dd82c4b8"
+};
+
+let db,allReports=[],activeFilter='all';
+
+window.login=function(){
+  const val=document.getElementById('pwInput').value;
+  if(val===ADMIN_PASSWORD){
+    document.getElementById('loginSection').style.display='none';
+    document.getElementById('panelSection').style.display='block';
+    initFirebase();
+  } else {
+    document.getElementById('loginError').style.display='block';
+  }
+};
+window.logout=function(){
+  document.getElementById('loginSection').style.display='block';
+  document.getElementById('panelSection').style.display='none';
+  document.getElementById('pwInput').value='';
+};
+window.setFilter=function(cat,btn){
+  activeFilter=cat;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+};
+window.deleteReport=async function(id){
+  if(!confirm('Delete this report permanently?'))return;
+  try{await deleteDoc(doc(db,'reports',id));showToast('Report deleted.');}
+  catch(e){showToast('Error deleting.');console.error(e);}
+};
+window.resolveReport=async function(id){
+  try{await updateDoc(doc(db,'reports',id),{resolved:true});showToast('Marked as resolved ✓');}
+  catch(e){showToast('Error updating.');console.error(e);}
+};
+window.reopenReport=async function(id){
+  try{await updateDoc(doc(db,'reports',id),{resolved:false});showToast('Report reopened.');}
+  catch(e){showToast('Error updating.');console.error(e);}
+};
+
+function initFirebase(){
+  try{
+    const app=initializeApp(config);
+    db=getFirestore(app);
+    onSnapshot(query(collection(db,'reports'),orderBy('timestamp','desc')),snapshot=>{
+      allReports=snapshot.docs.map(d=>({...d.data(),id:d.id}));
+      renderStats();
+      renderList();
+    });
+  }catch(e){
+    console.error(e);
+    document.getElementById('reportList').innerHTML='<div class="empty">Could not connect to Firebase.</div>';
+  }
+}
+
+function renderStats(){
+  document.getElementById('statTotal').textContent=allReports.length;
+  document.getElementById('statPhotos').textContent=allReports.filter(r=>r.photoUrl).length;
+  document.getElementById('statResolved').textContent=allReports.filter(r=>r.resolved).length;
+  const today=new Date().toDateString();
+  document.getElementById('statToday').textContent=allReports.filter(r=>{
+    if(!r.timestamp)return false;
+    const d=new Date(r.timestamp.seconds?r.timestamp.seconds*1000:r.timestamp);
+    return d.toDateString()===today;
+  }).length;
+}
+
+function renderList(){
+  const list=document.getElementById('reportList');
+  let filtered=allReports;
+  if(activeFilter==='resolved') filtered=allReports.filter(r=>r.resolved);
+  else if(activeFilter!=='all') filtered=allReports.filter(r=>r.cat===activeFilter&&!r.resolved);
+  if(!filtered.length){list.innerHTML='<div class="empty">No reports found.</div>';return;}
+  list.innerHTML=filtered.map(r=>{
+    const cat=CATS[r.cat]||CATS.other;
+    const date=r.timestamp?new Date(r.timestamp.seconds?r.timestamp.seconds*1000:r.timestamp).toLocaleString():'Unknown date';
+    const thumb=r.photoUrl
+      ?`<img class="report-thumb" src="${r.photoUrl}" onerror="this.style.display='none'" />`
+      :`<div class="report-thumb-placeholder">${cat.icon}</div>`;
+    const resolvedBadge=r.resolved?`<span class="resolved-badge">RESOLVED</span>`:'';
+    const actionBtn=r.resolved
+      ?`<button class="btn-reopen" onclick="reopenReport('${r.id}')">Reopen</button>`
+      :`<button class="btn-resolve" onclick="resolveReport('${r.id}')">✓ Resolve</button>`;
+    return `<div class="report-card${r.resolved?' resolved':''}">
+      ${thumb}
+      <div class="report-info">
+        <div class="report-cat" style="color:${cat.color}">${cat.label}${resolvedBadge}</div>
+        <div class="report-desc">${r.desc||'No description'}</div>
+        <div class="report-meta">${r.address||'No address'} · ${date}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;flex-shrink:0;">
+        ${actionBtn}
+        <button class="btn-delete" onclick="deleteReport('${r.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>

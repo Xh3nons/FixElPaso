@@ -10,88 +10,74 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --sun:      #F5A623;
-      --asphalt:  #1A1A2E;
-      --concrete: #F0EDE8;
-      --dust:     #8C7B6E;
-      --white:    #FFFFFF;
-      --pothole:  #E74C3C;
-      --light:    #F39C12;
-      --flood:    #2980B9;
-      --sidewalk: #8E44AD;
-      --signage:  #27AE60;
-      --other:    #7F8C8D;
+      --sun: #F5A623; --asphalt: #1A1A2E; --concrete: #F0EDE8;
+      --dust: #8C7B6E; --white: #FFFFFF;
+      --pothole: #E74C3C; --light: #F39C12; --flood: #2980B9;
+      --sidewalk: #8E44AD; --signage: #27AE60; --other: #7F8C8D;
     }
-    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--concrete); }
-
-    /* HEADER */
+    html, body { height: 100%; font-family: 'Inter', sans-serif; }
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: var(--asphalt);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; height: 52px;
+      background: var(--asphalt); display: flex; align-items: center;
+      justify-content: space-between; padding: 0 20px; height: 52px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.4);
     }
-    .brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 8px; letter-spacing: -0.02em; }
+    .brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 8px; letter-spacing: -0.02em; text-decoration: none; }
     .brand-accent { color: var(--sun); }
     .brand-tag { font-size: 0.65rem; font-weight: 500; color: var(--dust); letter-spacing: 0.08em; text-transform: uppercase; border-left: 1px solid #333; padding-left: 10px; margin-left: 2px; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
-    .btn-report { background: var(--sun); color: var(--asphalt); border: none; border-radius: 6px; padding: 7px 16px; font-family: 'Space Grotesk', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+    .btn-report { background: var(--sun); color: var(--asphalt); border: none; border-radius: 6px; padding: 7px 16px; font-family: 'Space Grotesk', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
     .btn-report:hover { opacity: 0.88; }
     .btn-ghost { background: transparent; color: var(--white); border: 1px solid #444; border-radius: 6px; padding: 7px 14px; font-family: 'Inter', sans-serif; font-size: 0.8rem; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
     .btn-ghost:hover, .btn-ghost.active { border-color: var(--sun); color: var(--sun); }
     .hamburger { background: none; border: none; cursor: pointer; padding: 6px 4px; display: flex; flex-direction: column; gap: 5px; }
     .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; transition: background 0.15s; }
     .hamburger:hover span { background: var(--sun); }
+    /* SIDEBAR */
     .sidebar-overlay { display: none; position: fixed; inset: 0; z-index: 1800; background: rgba(0,0,0,0.45); }
     .sidebar-overlay.open { display: block; }
-    .sidebar { position: fixed; top: 0; right: -320px; width: 290px; height: 100%; z-index: 1900; background: var(--white); box-shadow: -4px 0 30px rgba(0,0,0,0.25); transition: right 0.28s cubic-bezier(0.4,0,0.2,1); overflow-y: auto; display: flex; flex-direction: column; }
+    .sidebar { position: fixed; top: 0; right: -310px; width: 280px; height: 100%; z-index: 1900; background: var(--white); box-shadow: -4px 0 30px rgba(0,0,0,0.25); transition: right 0.28s cubic-bezier(0.4,0,0.2,1); overflow-y: auto; display: flex; flex-direction: column; }
     .sidebar.open { right: 0; }
     .sidebar-header { background: var(--asphalt); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
     .sidebar-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--white); font-size: 0.95rem; }
     .sidebar-close { background: none; border: none; color: var(--dust); font-size: 1.3rem; cursor: pointer; line-height: 1; }
     .sidebar-close:hover { color: var(--white); }
-    .sidebar-section { padding: 18px 18px 14px; border-bottom: 1px solid #EDEDED; }
-    .sidebar-section:last-of-type { border-bottom: none; }
-    .sidebar-section-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dust); margin-bottom: 12px; }
-    .sidebar-nav-btn { display: flex; align-items: center; gap: 11px; width: 100%; background: none; border: none; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.87rem; color: var(--asphalt); text-align: left; transition: background 0.15s; margin-bottom: 2px; }
-    .sidebar-nav-btn:hover { background: var(--concrete); }
-    .sidebar-nav-icon { font-size: 1rem; width: 22px; text-align: center; flex-shrink: 0; }
-    .sidebar-member { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #F0EDE8; }
-    .sidebar-member:last-child { border-bottom: none; padding-bottom: 0; }
-    .sidebar-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--asphalt); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--sun); font-size: 0.78rem; flex-shrink: 0; }
-    .sidebar-member-name { font-weight: 600; font-size: 0.84rem; color: var(--asphalt); }
-    .sidebar-member-role { font-size: 0.74rem; color: var(--dust); margin-top: 1px; }
-    .sidebar-contact-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: var(--concrete); text-decoration: none; color: var(--asphalt); font-size: 0.85rem; font-weight: 500; transition: background 0.15s; }
-    .sidebar-contact-link:hover { background: #e5e1db; color: var(--sun); }
-    .sidebar-footer { margin-top: auto; padding: 14px 18px; font-size: 0.71rem; color: var(--dust); text-align: center; line-height: 1.6; border-top: 1px solid #EDEDED; }
-
+    .sidebar-section { padding: 16px 18px; border-bottom: 1px solid #EDEDED; }
+    .sidebar-label { font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dust); margin-bottom: 10px; }
+    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--asphalt); font-size: 0.88rem; font-weight: 500; transition: background 0.15s; margin-bottom: 2px; }
+    .sidebar-link:hover { background: var(--concrete); }
+    .sidebar-link-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+    .sidebar-footer { margin-top: auto; padding: 14px 18px; font-size: 0.71rem; color: var(--dust); text-align: center; border-top: 1px solid #EDEDED; line-height: 1.6; }
     /* MAP */
     #map { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; }
+    /* LOADING SCREEN */
+    #map-loading { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; background: var(--concrete); z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid #DDD; border-top-color: var(--sun); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; color: var(--dust); }
+    /* LEGEND */
     .legend { position: absolute; bottom: 28px; left: 14px; z-index: 900; background: var(--asphalt); color: var(--white); border-radius: 8px; padding: 14px 16px; font-size: 0.78rem; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
     .legend-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dust); margin-bottom: 10px; }
     .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
     .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .stats-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 900; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .stats-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 900; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 40px); }
     .stat-pill { background: var(--asphalt); color: var(--white); border-radius: 20px; padding: 5px 13px; font-size: 0.74rem; font-family: 'Space Grotesk', sans-serif; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); white-space: nowrap; }
     .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
     .stat-count { font-weight: 700; color: var(--sun); }
-
-    /* MODALS shared */
+    /* REPORT MODAL */
     .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(10,10,20,0.7); backdrop-filter: blur(3px); align-items: center; justify-content: center; overflow-y: auto; padding: 16px; }
     .modal-overlay.open { display: flex; }
     .modal { background: var(--white); border-radius: 12px; padding: 28px; width: 100%; max-width: 480px; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--asphalt); }
     .modal-close { background: none; border: none; cursor: pointer; color: var(--dust); font-size: 1.4rem; line-height: 1; padding: 0 4px; }
-    .modal-close:hover { color: var(--asphalt); }
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--dust); margin-bottom: 5px; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; }
-    select, textarea, input[type="text"], input[type="password"] { width: 100%; border: 1.5px solid #DDD; border-radius: 7px; padding: 9px 12px; font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--asphalt); transition: border-color 0.15s; background: var(--concrete); }
-    select:focus, textarea:focus, input:focus { outline: none; border-color: var(--sun); }
+    textarea, input[type="text"] { width: 100%; border: 1.5px solid #DDD; border-radius: 7px; padding: 9px 12px; font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--asphalt); transition: border-color 0.15s; background: var(--concrete); }
+    textarea:focus, input:focus { outline: none; border-color: var(--sun); }
     textarea { resize: vertical; min-height: 80px; }
     .location-status { font-size: 0.75rem; color: var(--dust); margin-top: 5px; }
-    .location-status.ok  { color: #27AE60; }
+    .location-status.ok { color: #27AE60; }
     .location-status.err { color: var(--pothole); }
     .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .cat-btn { border: 1.5px solid #DDD; border-radius: 7px; padding: 9px 10px; background: var(--concrete); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--asphalt); display: flex; align-items: center; gap: 7px; transition: border-color 0.15s, background 0.15s; }
@@ -104,63 +90,26 @@
     .cat-btn[data-cat="signage"].selected  { color: var(--signage);  background: #eafaf1; }
     .cat-btn[data-cat="other"].selected    { color: var(--other);    background: #f5f5f5; }
     .cat-color { width: 10px; height: 10px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-    .btn-submit { width: 100%; background: var(--asphalt); color: var(--white); border: none; border-radius: 8px; padding: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; margin-top: 4px; }
+    .btn-submit { width: 100%; background: var(--asphalt); color: var(--white); border: none; border-radius: 8px; padding: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-top: 4px; }
     .btn-submit:hover { background: #2d2d4e; }
     .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
-
-    /* PHOTO UPLOAD */
-    .photo-upload-area { border: 2px dashed #DDD; border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; background: var(--concrete); }
-    .photo-upload-area:hover { border-color: var(--sun); background: #fef9f0; }
-    .photo-upload-area.has-file { border-color: var(--signage); background: #eafaf1; }
-    .photo-upload-text { font-size: 0.82rem; color: var(--dust); margin-top: 4px; }
-    .photo-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 6px; margin-top: 8px; display: none; }
-
-    /* ABOUT MODAL */
-    .about-section { margin-bottom: 24px; }
-    .about-section h3 { font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dust); margin-bottom: 12px; }
-    .about-intro { font-size: 0.9rem; line-height: 1.6; color: #444; margin-bottom: 8px; }
-    .member-card { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--concrete); border-radius: 8px; margin-bottom: 8px; }
-    .member-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--asphalt); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--sun); font-size: 1rem; flex-shrink: 0; }
-    .member-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.88rem; color: var(--asphalt); }
-    .member-role { font-size: 0.78rem; color: var(--dust); margin-top: 2px; }
-    .contact-row { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--concrete); border-radius: 8px; }
-    .contact-icon { font-size: 1.2rem; }
-    .contact-link { font-size: 0.88rem; color: var(--asphalt); text-decoration: none; font-weight: 500; }
-    .contact-link:hover { color: var(--sun); }
-    .modal-divider { border: none; border-top: 1px solid #EEE; margin: 20px 0; }
-
-    /* ADMIN PANEL */
-    .admin-login { text-align: center; padding: 8px 0 16px; }
-    .admin-login p { font-size: 0.84rem; color: var(--dust); margin-bottom: 14px; }
-    .report-list { max-height: 400px; overflow-y: auto; }
-    .report-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 7px; background: var(--concrete); margin-bottom: 8px; }
-    .report-row-info { flex: 1; min-width: 0; }
-    .report-row-cat { font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
-    .report-row-desc { font-size: 0.8rem; color: #555; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .report-row-meta { font-size: 0.72rem; color: var(--dust); margin-top: 3px; }
-    .btn-delete { background: #fdf3f2; color: var(--pothole); border: 1px solid #f5c6c2; border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; flex-shrink: 0; transition: background 0.15s; }
-    .btn-delete:hover { background: var(--pothole); color: white; }
-    .report-img-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 5px; flex-shrink: 0; }
-    .admin-empty { text-align: center; color: var(--dust); font-size: 0.85rem; padding: 24px 0; }
-
-    /* TOAST + BANNER */
-    #setup-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1500; background: #1a1a2e; color: #fff; padding: 12px 20px; font-size: 0.82rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 2px solid var(--sun); }
-    #setup-banner strong { color: var(--sun); }
-    .banner-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 1rem; }
+    .photo-drop { border: 2px dashed #DDD; border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; background: var(--concrete); }
+    .photo-drop:hover, .photo-drop.dragover { border-color: var(--sun); background: #fef9f0; }
+    .photo-drop.has-file { border-color: var(--signage); background: #eafaf1; }
+    .photo-drop-text { font-size: 0.8rem; color: var(--dust); margin-top: 4px; }
+    .photo-preview-img { width: 100%; max-height: 140px; object-fit: cover; border-radius: 6px; margin-top: 8px; display: none; }
     #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 3000; background: var(--asphalt); color: var(--white); padding: 10px 22px; border-radius: 24px; font-size: 0.84rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; font-family: 'Space Grotesk', sans-serif; border-left: 3px solid var(--sun); white-space: nowrap; }
     #toast.show { opacity: 1; }
-
     @media (max-width: 520px) { .stats-bar { display: none; } .brand-tag { display: none; } }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
-  <div class="brand">
-    <span>Fix<span class="brand-accent"> El Paso</span></span>
-    <span class="brand-tag">Community Infrastructure Map</span>
-  </div>
+  <a class="brand" href="index.html">
+    Fix<span class="brand-accent">&nbsp;El Paso</span>
+    <span class="brand-tag">Infrastructure Map</span>
+  </a>
   <div class="header-actions">
     <button class="btn-ghost" id="heatToggle" onclick="toggleHeat()">🌡 Heat Map</button>
     <button class="btn-report" onclick="openModal()">+ Report Issue</button>
@@ -170,7 +119,12 @@
   </div>
 </header>
 
-<!-- MAP -->
+<!-- Loading screen — shown until Firebase resolves -->
+<div id="map-loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading reports…</div>
+</div>
+
 <div id="map">
   <div class="stats-bar" id="statsBar"></div>
   <div class="legend">
@@ -181,6 +135,29 @@
     <div class="legend-item"><div class="legend-dot" style="background:var(--sidewalk)"></div>Damaged Sidewalk</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--signage)"></div>Missing Signage</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--other)"></div>Other</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-title">Fix <span style="color:var(--sun)">El Paso</span></span>
+    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Map</div>
+    <a class="sidebar-link" href="index.html"><span class="sidebar-link-icon">🗺️</span> View Map</a>
+    <button class="sidebar-link" style="width:100%;border:none;background:none;" onclick="closeSidebar();openModal()"><span class="sidebar-link-icon">📍</span> Report an Issue</button>
+    <button class="sidebar-link" style="width:100%;border:none;background:none;" onclick="closeSidebar();toggleHeat()"><span class="sidebar-link-icon">🌡</span> Toggle Heat Map</button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Pages</div>
+    <a class="sidebar-link" href="about.html"><span class="sidebar-link-icon">ℹ️</span> About</a>
+    <a class="sidebar-link" href="about.html#contact"><span class="sidebar-link-icon">✉️</span> Contact Us</a>
+  </div>
+  <div class="sidebar-footer">
+    Built by El Paso students<br>© Fix El Paso 2025
   </div>
 </div>
 
@@ -212,458 +189,222 @@
     </div>
     <div class="form-group">
       <label>Photo (optional)</label>
-      <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('photoInput').click()">
-        <div style="font-size:1.5rem">📷</div>
-        <div class="photo-upload-text">Tap to add a photo</div>
+      <div class="photo-drop" id="photoDrop"
+           onclick="document.getElementById('photoInput').click()"
+           ondragover="event.preventDefault();this.classList.add('dragover')"
+           ondragleave="this.classList.remove('dragover')"
+           ondrop="handleDrop(event)">
+        <div style="font-size:1.6rem">📷</div>
+        <div class="photo-drop-text" id="photoDropText">Tap to add a photo</div>
         <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoSelect(this)" />
-        <img id="photoPreview" class="photo-preview" alt="Preview" />
+        <img id="photoPreview" class="photo-preview-img" alt="Preview" />
       </div>
+      <div style="font-size:0.72rem;color:var(--dust);margin-top:5px;" id="photoStatus"></div>
     </div>
     <div class="form-group">
       <label>Your Location</label>
-      <button class="btn-ghost" style="width:100%;padding:9px;color:#333;border-color:#DDD;" onclick="getLocation()">📍 Use my current location</button>
+      <button class="btn-ghost" style="width:100%;padding:9px;color:var(--asphalt);border-color:#CCC;" onclick="getLocation()">📍 Use my current location</button>
       <div class="location-status" id="locStatus">Location not captured yet</div>
     </div>
     <button class="btn-submit" id="submitBtn" onclick="submitReport()" disabled>Submit Report</button>
   </div>
 </div>
 
-<!-- SIDEBAR OVERLAY + DRAWER -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <span class="sidebar-title">Fix <span style="color:var(--sun)">El Paso</span></span>
-    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-title">Actions</div>
-    <button class="sidebar-nav-btn" onclick="closeSidebar(); openModal()">
-      <span class="sidebar-nav-icon">📍</span> Report issue
-    </button>
-    <button class="sidebar-nav-btn" onclick="closeSidebar(); toggleHeat()">
-      <span class="sidebar-nav-icon">🌡</span> Toggle Heat Map
-    </button>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-title">About</div>
-    <p style="font-size:0.84rem;color:#555;line-height:1.6;">Fix El Paso is a community driven infrastructure reporting tool built by El Paso students. Our goal is to bring visibility to potholes, broken streetlights, flooding, and other issues, putting data directly in the hands of residents.</p>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-title">Founders</div>
-    <div class="sidebar-member">
-      <div class="sidebar-avatar">DD</div>
-      <div>
-        <div class="sidebar-member-name">Daniel Dominguez</div>
-        <div class="sidebar-member-role">Team Lead · Eastlake High School</div>
-      </div>
-    </div>
-    <div class="sidebar-member">
-      <div class="sidebar-avatar">AC</div>
-      <div>
-        <div class="sidebar-member-name">Angel Chavez</div>
-        <div class="sidebar-member-role">Outreach · Bel Air High School</div>
-      </div>
-    </div>
-    <div class="sidebar-member">
-      <div class="sidebar-avatar">IV</div>
-      <div>
-        <div class="sidebar-member-name">Ian Vazquez</div>
-        <div class="sidebar-member-role">Programmer · Eastlake High School</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-title">Contact Us</div>
-    <a class="sidebar-contact-link" href="mailto:fixelpaso@gmail.com">
-      <span style="font-size:1.1rem">✉️</span>
-      fixelpaso@gmail.com
-      <span style="font-size:1.1rem">📞</span>
-  +1(915)-279-5659
-    </a>
-  </div>
-
-  <div class="sidebar-footer">
-    Built with Leaflet, OpenStreetMap & Firebase<br>El Paso, TX
-  </div>
-</div>
-
-<!-- ADMIN MODAL -->
-<div class="modal-overlay" id="adminModal">
-  <div class="modal" style="max-width:560px;">
-    <div class="modal-header">
-      <div class="modal-title">🔧 Admin Panel</div>
-      <button class="modal-close" onclick="closeAdmin()">✕</button>
-    </div>
-    <div id="adminLoginSection" class="admin-login">
-      <p>Enter the admin password to manage reports.</p>
-      <div class="form-group" style="text-align:left">
-        <label>Password</label>
-        <input type="password" id="adminPasswordInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkAdminPassword()" />
-      </div>
-      <button class="btn-submit" onclick="checkAdminPassword()">Login</button>
-    </div>
-    <div id="adminPanelSection" style="display:none;">
-      <div id="adminReportList" class="report-list"></div>
-    </div>
-  </div>
-</div>
-
-<div id="setup-banner">
-  <span>⚙️ <strong>Firebase not connected yet.</strong> Reports shown are sample data.</span>
-  <button class="banner-close" onclick="document.getElementById('setup-banner').style.display='none'">✕</button>
-</div>
 <div id="toast"></div>
 
-<!-- Leaflet -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
-
-<!-- MAP + UI -->
 <script>
 const CATS = {
-  pothole:  { label: 'Pothole',            color: '#E74C3C' },
-  light:    { label: 'Broken Streetlight', color: '#F39C12' },
-  flood:    { label: 'Flooding/Drainage',  color: '#2980B9' },
-  sidewalk: { label: 'Damaged Sidewalk',   color: '#8E44AD' },
-  signage:  { label: 'Missing Signage',    color: '#27AE60' },
-  other:    { label: 'Other',              color: '#7F8C8D' },
+  pothole:  { label:'Pothole',            color:'#E74C3C' },
+  light:    { label:'Broken Streetlight', color:'#F39C12' },
+  flood:    { label:'Flooding/Drainage',  color:'#2980B9' },
+  sidewalk: { label:'Damaged Sidewalk',   color:'#8E44AD' },
+  signage:  { label:'Missing Signage',    color:'#27AE60' },
+  other:    { label:'Other',              color:'#7F8C8D' },
 };
 
-// ── ADMIN PASSWORD — change this to whatever you want ──
-const ADMIN_PASSWORD = 'fixelpaso2024';
-
-const map = L.map('map', { zoomControl: true }).setView([31.7619, -106.4850], 12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  maxZoom: 19
+const map = L.map('map',{zoomControl:true}).setView([31.7619,-106.4850],12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19
 }).addTo(map);
 
-function makeIcon(color) {
-  return L.divIcon({
-    className: '',
-    html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 24 32">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20S24 21 24 12C24 5.37 18.63 0 12 0z" fill="${color}" stroke="white" stroke-width="1.5"/>
-      <circle cx="12" cy="12" r="5" fill="white" opacity="0.9"/>
-    </svg>`,
-    iconSize: [24,32], iconAnchor: [12,32], popupAnchor: [0,-34]
-  });
+function makeIcon(color){
+  return L.divIcon({className:'',
+    html:`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 24 32"><path d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20S24 21 24 12C24 5.37 18.63 0 12 0z" fill="${color}" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="5" fill="white" opacity="0.9"/></svg>`,
+    iconSize:[24,32],iconAnchor:[12,32],popupAnchor:[0,-34]});
 }
 
-const SAMPLE_REPORTS = [
-  { lat:31.7725, lng:-106.4980, cat:'pothole',  desc:'Large pothole near the entrance ramp, about 18 inches wide.' },
-  { lat:31.7650, lng:-106.4850, cat:'light',    desc:'Streetlight has been out for 3 weeks.' },
-  { lat:31.7580, lng:-106.5020, cat:'flood',    desc:'Standing water after rain, drainage is blocked.' },
-  { lat:31.7700, lng:-106.4700, cat:'sidewalk', desc:'Cracked sidewalk panel is a tripping hazard.' },
-  { lat:31.7550, lng:-106.4900, cat:'pothole',  desc:'Multiple potholes on this block.' },
-  { lat:31.7630, lng:-106.4780, cat:'signage',  desc:'Stop sign is bent and barely visible.' },
-  { lat:31.7690, lng:-106.5100, cat:'pothole',  desc:'Deep pothole causing damage to vehicles.' },
-  { lat:31.7490, lng:-106.4820, cat:'light',    desc:'Two streetlights flickering intermittently.' },
-  { lat:31.7750, lng:-106.4650, cat:'flood',    desc:'Drainage ditch overflows during rain.' },
-  { lat:31.7600, lng:-106.5050, cat:'other',    desc:'Guardrail is missing on a sharp curve.' },
-  { lat:31.7520, lng:-106.4960, cat:'sidewalk', desc:'Sidewalk completely broken up, wheelchair inaccessible.' },
-  { lat:31.7670, lng:-106.4720, cat:'pothole',  desc:'Pothole at intersection, cars swerve to avoid.' },
-];
+let allMarkers=[],heatLayer=null,heatActive=false;
 
-let allMarkers = [], allReportData = [];
-let heatLayer = null, heatActive = false;
-
-function addReport(r) {
-  const cat = CATS[r.cat] || CATS.other;
-  const imgHtml = r.photoUrl
-    ? `<a href="${r.photoUrl}" target="_blank"><img src="${r.photoUrl}" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin-top:8px;" /></a>`
-    : '';
-  const marker = L.marker([r.lat, r.lng], { icon: makeIcon(cat.color) })
-    .bindPopup(`
-      <strong style="font-family:'Space Grotesk',sans-serif;color:#1A1A2E">${cat.label}</strong>
-      <p style="margin:6px 0 0;font-size:0.82rem;color:#555">${r.desc}</p>
-      ${r.address ? `<p style="margin:5px 0 0;font-size:0.75rem;color:#888">📍 ${r.address}</p>` : ''}
-      ${imgHtml}
-    `);
+function addReport(r){
+  const cat=CATS[r.cat]||CATS.other;
+  const imgHtml=r.photoUrl?`<a href="${r.photoUrl}" target="_blank"><img src="${r.photoUrl}" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin-top:8px;"/></a>`:'';
+  const marker=L.marker([r.lat,r.lng],{icon:makeIcon(cat.color)}).bindPopup(`
+    <strong style="font-family:'Space Grotesk',sans-serif;color:#1A1A2E">${cat.label}</strong>
+    <p style="margin:6px 0 0;font-size:0.82rem;color:#555">${r.desc}</p>
+    ${r.address?`<p style="margin:5px 0 0;font-size:0.75rem;color:#888">📍 ${r.address}</p>`:''}
+    ${imgHtml}`);
   marker.addTo(map);
-  allMarkers.push({ marker, cat: r.cat, lat: r.lat, lng: r.lng, id: r.id });
-  allReportData.push(r);
+  allMarkers.push({marker,cat:r.cat,lat:r.lat,lng:r.lng,id:r.id});
 }
 
-function buildHeatLayer() {
-  const pts = allMarkers.map(m => [m.lat, m.lng, 0.6]);
-  if (heatLayer) map.removeLayer(heatLayer);
-  heatLayer = L.heatLayer(pts, { radius:35, blur:25, maxZoom:14, gradient:{0.3:'#2980B9',0.6:'#F39C12',1.0:'#E74C3C'} });
+function buildHeatLayer(){
+  const pts=allMarkers.map(m=>[m.lat,m.lng,0.6]);
+  if(heatLayer)map.removeLayer(heatLayer);
+  heatLayer=L.heatLayer(pts,{radius:35,blur:25,maxZoom:14,gradient:{0.3:'#2980B9',0.6:'#F39C12',1.0:'#E74C3C'}});
+}
+function toggleHeat(){
+  heatActive=!heatActive;
+  const btn=document.getElementById('heatToggle');
+  if(heatActive){allMarkers.forEach(m=>map.removeLayer(m.marker));buildHeatLayer();heatLayer.addTo(map);btn.classList.add('active');}
+  else{if(heatLayer)map.removeLayer(heatLayer);allMarkers.forEach(m=>m.marker.addTo(map));btn.classList.remove('active');}
+}
+function updateStats(){
+  const counts={};
+  allMarkers.forEach(m=>counts[m.cat]=(counts[m.cat]||0)+1);
+  document.getElementById('statsBar').innerHTML=Object.entries(counts).map(([cat,n])=>
+    `<div class="stat-pill"><div class="stat-dot" style="background:${CATS[cat].color}"></div><span class="stat-count">${n}</span> ${CATS[cat].label}</div>`).join('');
 }
 
-function toggleHeat() {
-  heatActive = !heatActive;
-  const btn = document.getElementById('heatToggle');
-  if (heatActive) {
-    allMarkers.forEach(m => map.removeLayer(m.marker));
-    buildHeatLayer(); heatLayer.addTo(map);
-    btn.classList.add('active');
-  } else {
-    if (heatLayer) map.removeLayer(heatLayer);
-    allMarkers.forEach(m => m.marker.addTo(map));
-    btn.classList.remove('active');
+// SIDEBAR
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebarOverlay').classList.add('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
+
+// REPORT MODAL
+let selectedCat=null,userLat=null,userLng=null,selectedPhotoFile=null;
+function openModal(){document.getElementById('reportModal').classList.add('open');}
+function closeModal(){document.getElementById('reportModal').classList.remove('open');resetForm();}
+document.getElementById('reportModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+function selectCat(btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');selectedCat=btn.dataset.cat;checkReady();
+}
+function handlePhotoSelect(input){
+  const file=input.files[0]; if(!file)return;
+  selectedPhotoFile=file;
+  const preview=document.getElementById('photoPreview');
+  preview.src=URL.createObjectURL(file);preview.style.display='block';
+  document.getElementById('photoDrop').classList.add('has-file');
+  document.getElementById('photoDropText').textContent=file.name;
+}
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('photoDrop').classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')){
+    selectedPhotoFile=file;
+    const preview=document.getElementById('photoPreview');
+    preview.src=URL.createObjectURL(file);preview.style.display='block';
+    document.getElementById('photoDrop').classList.add('has-file');
+    document.getElementById('photoDropText').textContent=file.name;
   }
 }
-
-function updateStats() {
-  const counts = {};
-  allMarkers.forEach(m => counts[m.cat] = (counts[m.cat]||0)+1);
-  document.getElementById('statsBar').innerHTML = Object.entries(counts).map(([cat,n]) =>
-    `<div class="stat-pill"><div class="stat-dot" style="background:${CATS[cat].color}"></div><span class="stat-count">${n}</span> ${CATS[cat].label}</div>`
-  ).join('');
-}
-
-SAMPLE_REPORTS.forEach(addReport);
-updateStats();
-
-// ── REPORT MODAL ──
-let selectedCat = null, userLat = null, userLng = null, selectedPhotoFile = null;
-
-function openModal()  { document.getElementById('reportModal').classList.add('open'); }
-function closeModal() { document.getElementById('reportModal').classList.remove('open'); resetForm(); }
-
-function selectCat(btn) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedCat = btn.dataset.cat;
-  checkReady();
-}
-
-function handlePhotoSelect(input) {
-  const file = input.files[0];
-  if (!file) return;
-  selectedPhotoFile = file;
-  const preview = document.getElementById('photoPreview');
-  const area = document.getElementById('photoUploadArea');
-  preview.src = URL.createObjectURL(file);
-  preview.style.display = 'block';
-  area.classList.add('has-file');
-  area.querySelector('.photo-upload-text').textContent = file.name;
-}
-
-function getLocation() {
-  const status = document.getElementById('locStatus');
-  status.className = 'location-status';
-  status.textContent = 'Getting location…';
-  if (!navigator.geolocation) {
-    status.className = 'location-status err';
-    status.textContent = 'Geolocation not supported.'; return;
-  }
+function getLocation(){
+  const status=document.getElementById('locStatus');
+  status.className='location-status';status.textContent='Getting location…';
+  if(!navigator.geolocation){status.className='location-status err';status.textContent='Geolocation not supported.';return;}
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      userLat = pos.coords.latitude; userLng = pos.coords.longitude;
-      status.className = 'location-status ok';
-      status.textContent = `✓ Got it (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;
-      checkReady();
-    },
-    () => { status.className = 'location-status err'; status.textContent = 'Could not get location — check browser permissions.'; }
+    pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;
+      status.className='location-status ok';
+      status.textContent=`✓ Got it (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;checkReady();},
+    ()=>{status.className='location-status err';status.textContent='Could not get location — check browser permissions.';}
   );
 }
-
-function checkReady() {
-  document.getElementById('submitBtn').disabled = !(selectedCat && userLat);
+function checkReady(){document.getElementById('submitBtn').disabled=!(selectedCat&&userLat);}
+function resetForm(){
+  selectedCat=userLat=userLng=selectedPhotoFile=null;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('addressInput').value='';
+  document.getElementById('descInput').value='';
+  document.getElementById('locStatus').className='location-status';
+  document.getElementById('locStatus').textContent='Location not captured yet';
+  document.getElementById('submitBtn').disabled=true;
+  document.getElementById('photoPreview').style.display='none';
+  document.getElementById('photoPreview').src='';
+  document.getElementById('photoDrop').classList.remove('has-file');
+  document.getElementById('photoDropText').textContent='Tap to add a photo';
+  document.getElementById('photoInput').value='';
+  document.getElementById('photoStatus').textContent='';
 }
-
-function resetForm() {
-  selectedCat = userLat = userLng = selectedPhotoFile = null;
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('addressInput').value = '';
-  document.getElementById('descInput').value = '';
-  document.getElementById('locStatus').className = 'location-status';
-  document.getElementById('locStatus').textContent = 'Location not captured yet';
-  document.getElementById('submitBtn').disabled = true;
-  document.getElementById('photoPreview').style.display = 'none';
-  document.getElementById('photoPreview').src = '';
-  document.getElementById('photoUploadArea').classList.remove('has-file');
-  document.getElementById('photoUploadArea').querySelector('.photo-upload-text').textContent = 'Tap to add a photo';
-  document.getElementById('photoInput').value = '';
-}
-
-async function submitReport() {
-  const desc    = document.getElementById('descInput').value.trim() || 'No description provided.';
-  const address = document.getElementById('addressInput').value.trim();
-  const btn     = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-
-  let photoUrl = null;
-  if (selectedPhotoFile && window._firebaseUploadPhoto) {
-    try { photoUrl = await window._firebaseUploadPhoto(selectedPhotoFile); }
-    catch(e) { console.warn('Photo upload failed:', e); }
+async function submitReport(){
+  const desc=document.getElementById('descInput').value.trim()||'No description provided.';
+  const address=document.getElementById('addressInput').value.trim();
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='Submitting…';
+  let photoUrl=null;
+  if(selectedPhotoFile&&window._uploadPhoto){
+    document.getElementById('photoStatus').textContent='Uploading photo…';
+    try{photoUrl=await window._uploadPhoto(selectedPhotoFile);}
+    catch(e){console.warn('Photo upload failed:',e);document.getElementById('photoStatus').textContent='Photo upload failed, submitting without photo.';}
   }
-
-  const report = { lat: userLat, lng: userLng, cat: selectedCat, desc, address, photoUrl, timestamp: new Date() };
-
-  if (window._firebaseAddReport) {
-    try {
-      await window._firebaseAddReport(report);
-      showToast('Report submitted — thank you! 🙌');
-    } catch(e) {
-      showToast('Error saving — please try again.');
-      btn.disabled = false; btn.textContent = 'Submit Report';
-      console.error(e); return;
-    }
+  const report={lat:userLat,lng:userLng,cat:selectedCat,desc,address,photoUrl,timestamp:new Date()};
+  if(window._addReport){
+    try{await window._addReport(report);showToast('Report submitted — thank you! 🙌');}
+    catch(e){showToast('Error saving. Please try again.');btn.disabled=false;btn.textContent='Submit Report';console.error(e);return;}
   } else {
-    addReport(report); updateStats();
-    showToast('Demo mode — pinned locally');
+    addReport(report);updateStats();showToast('Demo mode — pinned locally');
   }
-  closeModal();
-  map.setView([userLat, userLng], 15);
+  closeModal();map.setView([userLat,userLng],15);
 }
-
-document.getElementById('reportModal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
-
-// ── SIDEBAR ──
-function openSidebar() {
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('sidebarOverlay').classList.add('open');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
-}
-
-// ── ADMIN MODAL ──
-// Access by pressing Shift+A three times (secret shortcut)
-let shiftACount = 0;
-document.addEventListener('keydown', e => {
-  if (e.key === 'A' && e.shiftKey) {
-    shiftACount++;
-    if (shiftACount >= 3) { shiftACount = 0; openAdmin(); }
-  } else { shiftACount = 0; }
-});
-
-function openAdmin() {
-  document.getElementById('adminModal').classList.add('open');
-  document.getElementById('adminLoginSection').style.display = 'block';
-  document.getElementById('adminPanelSection').style.display = 'none';
-  document.getElementById('adminPasswordInput').value = '';
-}
-function closeAdmin() { document.getElementById('adminModal').classList.remove('open'); }
-document.getElementById('adminModal').addEventListener('click', function(e) { if(e.target===this) closeAdmin(); });
-
-function checkAdminPassword() {
-  const val = document.getElementById('adminPasswordInput').value;
-  if (val === ADMIN_PASSWORD) {
-    document.getElementById('adminLoginSection').style.display = 'none';
-    document.getElementById('adminPanelSection').style.display = 'block';
-    renderAdminList();
-  } else {
-    showToast('Incorrect password.');
-  }
-}
-
-function renderAdminList() {
-  const list = document.getElementById('adminReportList');
-  const reports = window._allFirebaseReports || allReportData;
-  if (!reports.length) {
-    list.innerHTML = '<div class="admin-empty">No reports yet.</div>'; return;
-  }
-  list.innerHTML = reports.map((r, i) => {
-    const cat = CATS[r.cat] || CATS.other;
-    const date = r.timestamp ? new Date(r.timestamp.seconds ? r.timestamp.seconds*1000 : r.timestamp).toLocaleDateString() : 'Unknown date';
-    const thumb = r.photoUrl ? `<img class="report-img-thumb" src="${r.photoUrl}" />` : '';
-    return `<div class="report-row">
-      ${thumb}
-      <div class="report-row-info">
-        <div class="report-row-cat" style="color:${cat.color}">${cat.label}</div>
-        <div class="report-row-desc">${r.desc}</div>
-        <div class="report-row-meta">${r.address || 'No address'} · ${date}</div>
-      </div>
-      <button class="btn-delete" onclick="deleteReport('${r.id}', ${i})">Delete</button>
-    </div>`;
-  }).join('');
-}
-
-async function deleteReport(id, index) {
-  if (!id || !window._firebaseDeleteReport) {
-    showToast('Delete only works when Firebase is connected.');
-    return;
-  }
-  if (!confirm('Delete this report? This cannot be undone.')) return;
-  try {
-    await window._firebaseDeleteReport(id);
-    showToast('Report deleted.');
-    renderAdminList();
-  } catch(e) {
-    showToast('Error deleting report.');
-    console.error(e);
-  }
-}
-
-// ── TOAST ──
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 
-<!-- FIREBASE MODULE -->
 <script type="module">
-import { initializeApp }   from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot }
-                           from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL }
-                           from "https://www.gstatic.com/firebasejs/11.9.0/firebase-storage.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+import {getFirestore,collection,addDoc,query,orderBy,onSnapshot} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
+import {getStorage,ref,uploadBytes,getDownloadURL} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-storage.js";
 
-const config = {
-  apiKey:            "AIzaSyDr0KizTV4pNPV2NAff2JpCPkFh3WjeKz0",
-  authDomain:        "fix-el-paso.firebaseapp.com",
-  projectId:         "fix-el-paso",
-  storageBucket:     "fix-el-paso.firebasestorage.app",
-  messagingSenderId: "316586721705",
-  appId:             "1:316586721705:web:30163116acb500dd82c4b8"
+const config={
+  apiKey:"AIzaSyDr0KizTV4pNPV2NAff2JpCPkFh3WjeKz0",
+  authDomain:"fix-el-paso.firebaseapp.com",
+  projectId:"fix-el-paso",
+  storageBucket:"fix-el-paso.firebasestorage.app",
+  messagingSenderId:"316586721705",
+  appId:"1:316586721705:web:30163116acb500dd82c4b8"
 };
+try{
+  const app=initializeApp(config);
+  const db=getFirestore(app);
+  const storage=getStorage(app);
 
-try {
-  const app     = initializeApp(config);
-  const db      = getFirestore(app);
-  const storage = getStorage(app);
-
-  document.getElementById('setup-banner').style.display = 'none';
-  allMarkers.forEach(m => map.removeLayer(m.marker));
-  allMarkers = []; allReportData = [];
-
-  const liveReports = [];
-  onSnapshot(query(collection(db, 'reports'), orderBy('timestamp', 'desc')), snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === 'added') {
-        const d = { ...change.doc.data(), id: change.doc.id };
-        liveReports.push(d);
-        addReport(d);
-      }
-      if (change.type === 'removed') {
-        const id = change.doc.id;
-        const idx = allMarkers.findIndex(m => m.id === id);
-        if (idx !== -1) { map.removeLayer(allMarkers[idx].marker); allMarkers.splice(idx, 1); }
-        const ri = liveReports.findIndex(r => r.id === id);
-        if (ri !== -1) liveReports.splice(ri, 1);
-        const ai = allReportData.findIndex(r => r.id === id);
-        if (ai !== -1) allReportData.splice(ai, 1);
-      }
-    });
-    window._allFirebaseReports = liveReports;
-    updateStats();
-    if (heatActive) buildHeatLayer();
-  });
-
-  window._firebaseAddReport = report => addDoc(collection(db, 'reports'), report);
-  window._firebaseDeleteReport = id => deleteDoc(doc(db, 'reports', id));
-
-  window._firebaseUploadPhoto = async (file) => {
-    const name = `photos/${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, name);
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
+  window._addReport=report=>addDoc(collection(db,'reports'),report);
+  window._uploadPhoto=async(file)=>{
+    const storageRef=ref(storage,`photos/${Date.now()}_${file.name}`);
+    const snap=await uploadBytes(storageRef,file);
+    return await getDownloadURL(snap.ref);
   };
 
-} catch(e) {
-  console.warn('Firebase init failed:', e);
+  // Listen for real reports — hide loading screen once first batch loads
+  let firstLoad=true;
+  onSnapshot(query(collection(db,'reports'),orderBy('timestamp','desc')),snapshot=>{
+    snapshot.docChanges().forEach(change=>{
+      if(change.type==='added'){
+        const d={...change.doc.data(),id:change.doc.id};
+        addReport(d);
+      }
+      if(change.type==='removed'){
+        const id=change.doc.id;
+        const idx=allMarkers.findIndex(m=>m.id===id);
+        if(idx!==-1){map.removeLayer(allMarkers[idx].marker);allMarkers.splice(idx,1);}
+      }
+    });
+    updateStats();
+    if(heatActive)buildHeatLayer();
+    if(firstLoad){
+      firstLoad=false;
+      document.getElementById('map-loading').style.display='none';
+    }
+  });
+} catch(e){
+  console.warn('Firebase failed:',e);
+  // Show map even if Firebase fails
+  document.getElementById('map-loading').style.display='none';
 }
 </script>
-
 </body>
 </html>
