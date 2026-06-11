@@ -20,8 +20,8 @@
     .login-icon{font-size:2.5rem;margin-bottom:16px;}
     .login-title{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;color:var(--asphalt);margin-bottom:6px;}
     .login-sub{font-size:0.82rem;color:var(--dust);margin-bottom:24px;}
-    input[type="password"]{width:100%;border:1.5px solid #DDD;border-radius:7px;padding:10px 14px;font-family:'Inter',sans-serif;font-size:0.9rem;color:var(--asphalt);background:var(--concrete);margin-bottom:12px;}
-    input[type="password"]:focus{outline:none;border-color:var(--sun);}
+    input[type="password"],input[type="email"]{width:100%;border:1.5px solid #DDD;border-radius:7px;padding:10px 14px;font-family:'Inter',sans-serif;font-size:0.9rem;color:var(--asphalt);background:var(--concrete);margin-bottom:12px;}
+    input[type="password"]:focus,input[type="email"]:focus{outline:none;border-color:var(--sun);}
     .btn-login{width:100%;background:var(--asphalt);color:var(--white);border:none;border-radius:8px;padding:12px;font-family:'Space Grotesk',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;}
     .btn-login:hover{background:#2d2d4e;}
     .login-error{color:var(--red);font-size:0.8rem;margin-top:8px;display:none;}
@@ -73,9 +73,10 @@
     <div class="login-icon">🔒</div>
     <div class="login-title">Admin Access</div>
     <div class="login-sub">This page is for Fix El Paso team members only.</div>
-    <input type="password" id="pwInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()"/>
+    <input type="email" id="emailInput" placeholder="Admin email" onkeydown="if(event.key==='Enter')login()"/>
+    <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')login()"/>
     <button class="btn-login" onclick="login()">Login</button>
-    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+    <div class="login-error" id="loginError">Incorrect email or password.</div>
   </div>
 </div>
 
@@ -116,8 +117,7 @@
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
 import {getFirestore,collection,deleteDoc,doc,updateDoc,query,orderBy,onSnapshot} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
-
-const ADMIN_PASSWORD = 'fixelpaso2024'; // ← change this to your own password
+import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-auth.js";
 
 const CATS={
   pothole:{label:'Pothole',color:'#E74C3C',icon:'🕳️'},
@@ -128,6 +128,8 @@ const CATS={
   other:{label:'Other',color:'#7F8C8D',icon:'📌'},
 };
 
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
 const config={
   apiKey:"AIzaSyDr0KizTV4pNPV2NAff2JpCPkFh3WjeKz0",
   authDomain:"fix-el-paso.firebaseapp.com",
@@ -137,23 +139,43 @@ const config={
   appId:"1:316586721705:web:30163116acb500dd82c4b8"
 };
 
-let db,allReports=[],activeFilter='all';
+const app=initializeApp(config);
+const db=getFirestore(app);
+const auth=getAuth(app);
 
-window.login=function(){
-  const val=document.getElementById('pwInput').value;
-  if(val===ADMIN_PASSWORD){
+let allReports=[],activeFilter='all',unsubReports=null;
+
+onAuthStateChanged(auth, user=>{
+  if(user){
     document.getElementById('loginSection').style.display='none';
     document.getElementById('panelSection').style.display='block';
-    initFirebase();
+    startReportsListener();
   } else {
-    document.getElementById('loginError').style.display='block';
+    document.getElementById('loginSection').style.display='block';
+    document.getElementById('panelSection').style.display='none';
+    if(unsubReports){ unsubReports(); unsubReports=null; }
+  }
+});
+
+window.login=async function(){
+  const email=document.getElementById('emailInput').value.trim();
+  const pw=document.getElementById('pwInput').value;
+  const errEl=document.getElementById('loginError');
+  const btn=document.querySelector('.btn-login');
+  errEl.style.display='none';
+  if(!email||!pw){ errEl.textContent='Please enter email and password.'; errEl.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='Signing in…';
+  try{
+    await signInWithEmailAndPassword(auth,email,pw);
+  }catch(e){
+    errEl.textContent='Incorrect email or password.';
+    errEl.style.display='block';
+    btn.disabled=false; btn.textContent='Login';
   }
 };
-window.logout=function(){
-  document.getElementById('loginSection').style.display='block';
-  document.getElementById('panelSection').style.display='none';
-  document.getElementById('pwInput').value='';
-};
+
+window.logout=function(){ signOut(auth); };
+
 window.setFilter=function(cat,btn){
   activeFilter=cat;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
@@ -174,19 +196,15 @@ window.reopenReport=async function(id){
   catch(e){showToast('Error updating.');console.error(e);}
 };
 
-function initFirebase(){
-  try{
-    const app=initializeApp(config);
-    db=getFirestore(app);
-    onSnapshot(query(collection(db,'reports'),orderBy('timestamp','desc')),snapshot=>{
-      allReports=snapshot.docs.map(d=>({...d.data(),id:d.id}));
-      renderStats();
-      renderList();
-    });
-  }catch(e){
+function startReportsListener(){
+  unsubReports=onSnapshot(query(collection(db,'reports'),orderBy('timestamp','desc')),snapshot=>{
+    allReports=snapshot.docs.map(d=>({...d.data(),id:d.id}));
+    renderStats();
+    renderList();
+  },e=>{
     console.error(e);
-    document.getElementById('reportList').innerHTML='<div class="empty">Could not connect to Firebase.</div>';
-  }
+    document.getElementById('reportList').innerHTML='<div class="empty">Could not load reports.</div>';
+  });
 }
 
 function renderStats(){
@@ -211,25 +229,33 @@ function renderList(){
     const cat=CATS[r.cat]||CATS.other;
     const date=r.timestamp?new Date(r.timestamp.seconds?r.timestamp.seconds*1000:r.timestamp).toLocaleString():'Unknown date';
     const thumb=r.photoUrl
-      ?`<img class="report-thumb" src="${r.photoUrl}" onerror="this.style.display='none'" />`
+      ?`<img class="report-thumb" src="${escHtml(r.photoUrl)}" onerror="this.style.display='none'" />`
       :`<div class="report-thumb-placeholder">${cat.icon}</div>`;
     const resolvedBadge=r.resolved?`<span class="resolved-badge">RESOLVED</span>`:'';
     const actionBtn=r.resolved
-      ?`<button class="btn-reopen" onclick="reopenReport('${r.id}')">Reopen</button>`
-      :`<button class="btn-resolve" onclick="resolveReport('${r.id}')">✓ Resolve</button>`;
+      ?`<button class="btn-reopen" data-id="${escHtml(r.id)}" data-action="reopen">Reopen</button>`
+      :`<button class="btn-resolve" data-id="${escHtml(r.id)}" data-action="resolve">✓ Resolve</button>`;
     return `<div class="report-card${r.resolved?' resolved':''}">
       ${thumb}
       <div class="report-info">
         <div class="report-cat" style="color:${cat.color}">${cat.label}${resolvedBadge}</div>
-        <div class="report-desc">${r.desc||'No description'}</div>
-        <div class="report-meta">${r.address||'No address'} · ${date}</div>
+        <div class="report-desc">${escHtml(r.desc||'No description')}</div>
+        <div class="report-meta">${escHtml(r.address||'No address')} · ${date}</div>
       </div>
       <div style="display:flex;flex-direction:column;flex-shrink:0;">
         ${actionBtn}
-        <button class="btn-delete" onclick="deleteReport('${r.id}')">Delete</button>
+        <button class="btn-delete" data-id="${escHtml(r.id)}" data-action="delete">Delete</button>
       </div>
     </div>`;
   }).join('');
+  list.onclick=function(e){
+    const btn=e.target.closest('[data-action]');
+    if(!btn) return;
+    const id=btn.dataset.id, action=btn.dataset.action;
+    if(action==='delete') deleteReport(id);
+    else if(action==='resolve') resolveReport(id);
+    else if(action==='reopen') reopenReport(id);
+  };
 }
 
 function showToast(msg){

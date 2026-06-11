@@ -382,12 +382,12 @@ let allMarkers=[], heatLayer=null, heatActive=false;
 function addReport(r) {
   const cat = CATS[r.cat] || CATS.other;
   const imgHtml = r.photoUrl
-    ? `<a href="${r.photoUrl}" target="_blank"><img src="${r.photoUrl}" style="width:100%;max-height:110px;object-fit:cover;margin-top:8px;"/></a>` : '';
+    ? `<a href="${escHtml(r.photoUrl)}" target="_blank" rel="noopener noreferrer"><img src="${escHtml(r.photoUrl)}" style="width:100%;max-height:110px;object-fit:cover;margin-top:8px;"/></a>` : '';
   const marker = L.marker([r.lat,r.lng], {icon:makeIcon(cat.color)}).bindPopup(`
     <div style="font-family:'Syne Mono',monospace">
       <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#FF6B00;margin-bottom:6px">${cat.label}</div>
-      <div style="font-size:12px;color:#e2e4e6;line-height:1.5">${r.desc||''}</div>
-      ${r.address?`<div style="font-size:10px;color:#4a5260;margin-top:5px">${r.address}</div>`:''}
+      <div style="font-size:12px;color:#e2e4e6;line-height:1.5">${escHtml(r.desc)}</div>
+      ${r.address?`<div style="font-size:10px;color:#4a5260;margin-top:5px">${escHtml(r.address)}</div>`:''}
       ${imgHtml}
     </div>`);
   marker.addTo(map);
@@ -428,6 +428,8 @@ function toggleDrawer(){ document.getElementById('navDrawer').classList.toggle('
 function closeDrawer(){ document.getElementById('navDrawer').classList.remove('open'); }
 
 let selectedCat=null, userLat=null, userLng=null, selectedPhotoFile=null;
+let locationConfirmed = false;
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 function openModal(){ document.getElementById('reportModal').classList.add('open'); }
 function closeModal(){ document.getElementById('reportModal').classList.remove('open'); resetForm(); }
@@ -477,10 +479,8 @@ function getLocation(){
   );
 }
 
-function onAddressInput(){ checkReady(); if(document.getElementById('addressInput').value.trim().length > 2) fetchSuggestions(document.getElementById('addressInput').value.trim()); else hideAutocomplete(); }
 function checkReady(){
-  const hasLocation = userLat || (locationConfirmed);
-  document.getElementById('submitBtn').disabled = !(selectedCat && hasLocation);
+  document.getElementById('submitBtn').disabled = !(selectedCat && userLat !== null && userLng !== null);
 }
 
 function resetForm(){
@@ -580,27 +580,37 @@ function fetchSuggestions(query, num){
   }, 300);
 }
 
+let _acResults = {};
+
 function showAutocomplete(results, num){
   const list = document.getElementById('autocomplete-list-'+num);
   if(!results || results.length === 0){ hideAutocomplete(num); return; }
-  list.innerHTML = results.map(r => {
-    // Show just the street name, not full address
-    const parts = r.display_name.split(',');
-    const short = parts[0].trim();
-    return `<div onclick="selectStreet(${num}, '${short.replace(/'/g,"\\'")}', '${r.display_name.replace(/'/g,"\\'")}', ${r.lat}, ${r.lon})"
+  _acResults[num] = results;
+  list.innerHTML = results.map((r, i) => {
+    const short = r.display_name.split(',')[0].trim();
+    return `<div data-idx="${i}"
       style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted2);cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);"
       onmouseover="this.style.background='rgba(255,107,0,0.08)';this.style.color='var(--text)'"
       onmouseout="this.style.background='';this.style.color='var(--muted2)'"
-    >${short}</div>`;
+    >${escHtml(short)}</div>`;
   }).join('');
+  list.onclick = function(e){
+    const item = e.target.closest('[data-idx]');
+    if(!item) return;
+    const r = _acResults[num][parseInt(item.dataset.idx)];
+    const short = r.display_name.split(',')[0].trim();
+    selectStreet(num, short, r.display_name, r.lat, r.lon);
+  };
   list.style.display = 'block';
 }
 
 function hideAutocomplete(num){
-  const el = document.getElementById('autocomplete-list-'+(num||1));
-  if(el) el.style.display = 'none';
-  const el2 = document.getElementById('autocomplete-list-2');
-  if(!num && el2) el2.style.display = 'none';
+  if(num){
+    const el = document.getElementById('autocomplete-list-'+num);
+    if(el) el.style.display = 'none';
+  } else {
+    [1,2].forEach(n=>{ const el=document.getElementById('autocomplete-list-'+n); if(el) el.style.display='none'; });
+  }
 }
 
 function selectStreet(num, short, full, lat, lng){
