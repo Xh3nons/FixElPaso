@@ -501,14 +501,6 @@ function resetForm(){
   document.getElementById('photoStatus').textContent='';
 }
 
-async function geocodeAddress(address){
-  try{
-    const res=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address+', El Paso, TX')}&limit=1`);
-    const data=await res.json();
-    if(data&&data[0]) return {lat:parseFloat(data[0].lat),lng:parseFloat(data[0].lon)};
-  }catch(e){ console.warn('Geocode failed:',e); }
-  return null;
-}
 
 async function submitReport(){
   const desc=document.getElementById('descInput').value.trim()||'';
@@ -568,6 +560,12 @@ async function submitReport(){
 
 let autocompleteTimer = null;
 let street1Selected = false, street2Selected = false;
+
+function onStreetInput(num){
+  const val = document.getElementById('street'+num+'Input').value.trim();
+  if(val.length > 2) fetchSuggestions(val, num);
+  else hideAutocomplete(num);
+}
 
 function fetchSuggestions(query, num){
   clearTimeout(autocompleteTimer);
