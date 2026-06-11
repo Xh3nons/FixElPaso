@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<script>if(window.location.pathname.endsWith("index.html")||window.location.pathname.endsWith("/")){if(!sessionStorage.getItem("visited")){sessionStorage.setItem("visited","1");window.location.replace("about.html");}}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Fix El Paso — Community Infrastructure Map</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
@@ -325,12 +326,13 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="photo-hint" id="photoStatus"></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Location <span class="optional">(GPS or address)</span></label>
+      <label class="form-label">Location <span style="color:var(--orange);font-size:9px;letter-spacing:0.1em">(required)</span></label>
       <div class="loc-row">
         <button class="btn-loc" onclick="getLocation()">Use GPS</button>
-        <div style="flex:1">
-          <input type="text" id="addressInput" placeholder="Or type an address / intersection" oninput="onAddressInput()" />
-          <div class="location-status" id="locStatus">Address optional</div>
+        <div style="flex:1;position:relative">
+          <input type="text" id="addressInput" placeholder="Type an address or intersection" oninput="onAddressInput()" autocomplete="off" />
+          <div id="autocomplete-list" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;background:#0d1014;border:1px solid rgba(255,255,255,0.1);border-top:none;max-height:180px;overflow-y:auto;"></div>
+          <div class="location-status" id="locStatus">GPS or address required</div>
         </div>
       </div>
     </div>
@@ -466,8 +468,11 @@ function getLocation(){
   );
 }
 
-function onAddressInput(){ checkReady(); }
-function checkReady(){ document.getElementById('submitBtn').disabled=!selectedCat; }
+function onAddressInput(){ checkReady(); if(document.getElementById('addressInput').value.trim().length > 2) fetchSuggestions(document.getElementById('addressInput').value.trim()); else hideAutocomplete(); }
+function checkReady(){
+  const hasLocation = userLat || document.getElementById('addressInput').value.trim().length > 2;
+  document.getElementById('submitBtn').disabled = !(selectedCat && hasLocation);
+}
 
 function resetForm(){
   selectedCat=userLat=userLng=selectedPhotoFile=null;
@@ -475,7 +480,7 @@ function resetForm(){
   document.getElementById('addressInput').value='';
   document.getElementById('descInput').value='';
   document.getElementById('locStatus').className='location-status';
-  document.getElementById('locStatus').textContent='Address optional';
+  document.getElementById('locStatus').textContent='GPS or address required';
   document.getElementById('submitBtn').disabled=true;
   document.getElementById('photoPreview').style.display='none';
   document.getElementById('photoPreview').src='';
@@ -542,6 +547,52 @@ async function submitReport(){
   closeModal();
   if(userLat) map.setView([userLat,userLng],15);
 }
+
+
+let autocompleteTimer = null;
+
+function fetchSuggestions(query){
+  clearTimeout(autocompleteTimer);
+  autocompleteTimer = setTimeout(async ()=>{
+    try{
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query+', El Paso, TX')}&limit=5&countrycodes=us`);
+      const data = await res.json();
+      showAutocomplete(data);
+    }catch(e){ hideAutocomplete(); }
+  }, 300);
+}
+
+function showAutocomplete(results){
+  const list = document.getElementById('autocomplete-list');
+  if(!results || results.length === 0){ hideAutocomplete(); return; }
+  list.innerHTML = results.map((r,i) =>
+    `<div onclick="selectSuggestion('${r.display_name.replace(/'/g,"\\'")}', ${r.lat}, ${r.lon})"
+      style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted2);cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.15s;"
+      onmouseover="this.style.background='rgba(255,107,0,0.08)';this.style.color='var(--text)'"
+      onmouseout="this.style.background='';this.style.color='var(--muted2)'"
+    >${r.display_name}</div>`
+  ).join('');
+  list.style.display = 'block';
+}
+
+function hideAutocomplete(){
+  document.getElementById('autocomplete-list').style.display = 'none';
+}
+
+function selectSuggestion(name, lat, lng){
+  document.getElementById('addressInput').value = name;
+  userLat = parseFloat(lat);
+  userLng = parseFloat(lng);
+  const status = document.getElementById('locStatus');
+  status.className = 'location-status ok';
+  status.textContent = 'Address confirmed';
+  hideAutocomplete();
+  checkReady();
+}
+
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#autocomplete-list') && e.target.id !== 'addressInput') hideAutocomplete();
+});
 
 function showToast(msg){
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
