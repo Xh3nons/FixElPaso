@@ -6,83 +6,125 @@
   <title>Fix El Paso — Community Infrastructure Map</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --sun: #F5A623; --asphalt: #1A1A2E; --concrete: #F0EDE8;
-      --dust: #8C7B6E; --white: #FFFFFF;
+      --dust: #8C7B6E; --white: #FFFFFF; --ink: #2C2C3E;
       --pothole: #E74C3C; --light: #F39C12; --flood: #2980B9;
       --sidewalk: #8E44AD; --signage: #27AE60; --other: #7F8C8D;
     }
-    html, body { height: 100%; font-family: 'Inter', sans-serif; }
-    header {
+    html, body { height: 100%; font-family: 'Inter', sans-serif; color: var(--ink); }
+
+    /* ── NAV (matches about.html) ── */
+    nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: var(--asphalt); display: flex; align-items: center;
-      justify-content: space-between; padding: 0 20px; height: 52px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      background: var(--asphalt);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 56px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.35);
     }
-    .brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 8px; letter-spacing: -0.02em; text-decoration: none; }
-    .brand-accent { color: var(--sun); }
-    .brand-tag { font-size: 0.65rem; font-weight: 500; color: var(--dust); letter-spacing: 0.08em; text-transform: uppercase; border-left: 1px solid #333; padding-left: 10px; margin-left: 2px; }
-    .header-actions { display: flex; gap: 8px; align-items: center; }
-    .btn-report { background: var(--sun); color: var(--asphalt); border: none; border-radius: 6px; padding: 7px 16px; font-family: 'Space Grotesk', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
-    .btn-report:hover { opacity: 0.88; }
-    .btn-ghost { background: transparent; color: var(--white); border: 1px solid #444; border-radius: 6px; padding: 7px 14px; font-family: 'Inter', sans-serif; font-size: 0.8rem; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
-    .btn-ghost:hover, .btn-ghost.active { border-color: var(--sun); color: var(--sun); }
-    .hamburger { background: none; border: none; cursor: pointer; padding: 6px 4px; display: flex; flex-direction: column; gap: 5px; }
-    .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; transition: background 0.15s; }
-    .hamburger:hover span { background: var(--sun); }
-    /* SIDEBAR */
-    .sidebar-overlay { display: none; position: fixed; inset: 0; z-index: 1800; background: rgba(0,0,0,0.45); }
-    .sidebar-overlay.open { display: block; }
-    .sidebar { position: fixed; top: 0; right: -310px; width: 280px; height: 100%; z-index: 1900; background: var(--white); box-shadow: -4px 0 30px rgba(0,0,0,0.25); transition: right 0.28s cubic-bezier(0.4,0,0.2,1); overflow-y: auto; display: flex; flex-direction: column; }
-    .sidebar.open { right: 0; }
-    .sidebar-header { background: var(--asphalt); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-    .sidebar-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--white); font-size: 0.95rem; }
-    .sidebar-close { background: none; border: none; color: var(--dust); font-size: 1.3rem; cursor: pointer; line-height: 1; }
-    .sidebar-close:hover { color: var(--white); }
-    .sidebar-section { padding: 16px 18px; border-bottom: 1px solid #EDEDED; }
-    .sidebar-label { font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dust); margin-bottom: 10px; }
-    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--asphalt); font-size: 0.88rem; font-weight: 500; transition: background 0.15s; margin-bottom: 2px; }
-    .sidebar-link:hover { background: var(--concrete); }
-    .sidebar-link-icon { font-size: 1.1rem; width: 24px; text-align: center; }
-    .sidebar-footer { margin-top: auto; padding: 14px 18px; font-size: 0.71rem; color: var(--dust); text-align: center; border-top: 1px solid #EDEDED; line-height: 1.6; }
-    /* MAP */
-    #map { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; }
-    /* LOADING SCREEN */
-    #map-loading { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; background: var(--concrete); z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+    .nav-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: var(--white); text-decoration: none;
+      letter-spacing: -0.02em; white-space: nowrap;
+    }
+    .nav-brand span { color: var(--sun); }
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a {
+      display: block; padding: 6px 13px; border-radius: 6px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem; font-weight: 500;
+      color: #aaa; text-decoration: none;
+      transition: color 0.15s, background 0.15s; white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.07); }
+    .nav-links a.active { color: var(--sun); }
+    .nav-links a.nav-cta {
+      background: var(--sun); color: var(--asphalt);
+      font-weight: 700; margin-left: 6px;
+    }
+    .nav-links a.nav-cta:hover { opacity: 0.88; background: var(--sun); color: var(--asphalt); }
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; }
+    .nav-drawer {
+      display: none; position: fixed; top: 56px; left: 0; right: 0;
+      background: var(--asphalt); z-index: 999;
+      padding: 12px 16px 16px; border-top: 1px solid #2a2a40;
+      flex-direction: column; gap: 4px;
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      display: block; padding: 10px 14px; border-radius: 7px;
+      font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 500;
+      color: #aaa; text-decoration: none; transition: color 0.15s, background 0.15s;
+    }
+    .nav-drawer a:hover, .nav-drawer a.active { color: var(--sun); background: rgba(245,166,35,0.08); }
+    .nav-drawer a.nav-cta {
+      background: var(--sun); color: var(--asphalt); font-weight: 700; margin-top: 6px;
+    }
+
+    /* ── MAP ── */
+    #map { position: fixed; top: 56px; left: 0; right: 0; bottom: 0; }
+    #map-loading {
+      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+      background: var(--concrete); z-index: 500;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    }
     .loading-spinner { width: 36px; height: 36px; border: 3px solid #DDD; border-top-color: var(--sun); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; color: var(--dust); }
-    /* LEGEND */
-    .legend { position: absolute; bottom: 28px; left: 14px; z-index: 900; background: var(--asphalt); color: var(--white); border-radius: 8px; padding: 14px 16px; font-size: 0.78rem; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
-    .legend-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dust); margin-bottom: 10px; }
-    .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── LEGEND ── */
+    .legend { position: absolute; bottom: 28px; left: 14px; z-index: 900; background: var(--asphalt); color: var(--white); border-radius: 10px; padding: 14px 16px; font-size: 0.78rem; min-width: 165px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+    .legend-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dust); margin-bottom: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── STATS BAR ── */
     .stats-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 900; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 40px); }
     .stat-pill { background: var(--asphalt); color: var(--white); border-radius: 20px; padding: 5px 13px; font-size: 0.74rem; font-family: 'Space Grotesk', sans-serif; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); white-space: nowrap; }
     .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
     .stat-count { font-weight: 700; color: var(--sun); }
-    /* REPORT MODAL */
-    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(10,10,20,0.7); backdrop-filter: blur(3px); align-items: center; justify-content: center; overflow-y: auto; padding: 16px; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(10,10,20,0.72); backdrop-filter: blur(3px); align-items: center; justify-content: center; overflow-y: auto; padding: 16px; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--white); border-radius: 12px; padding: 28px; width: 100%; max-width: 480px; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal { background: var(--white); border-radius: 14px; padding: 28px; width: 100%; max-width: 480px; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
     .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--asphalt); }
-    .modal-close { background: none; border: none; cursor: pointer; color: var(--dust); font-size: 1.4rem; line-height: 1; padding: 0 4px; }
+    .modal-close { background: none; border: none; cursor: pointer; color: var(--dust); font-size: 1.4rem; line-height: 1; padding: 0 4px; transition: color 0.15s; }
+    .modal-close:hover { color: var(--asphalt); }
+
     .form-group { margin-bottom: 16px; }
-    label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--dust); margin-bottom: 5px; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; }
-    textarea, input[type="text"] { width: 100%; border: 1.5px solid #DDD; border-radius: 7px; padding: 9px 12px; font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--asphalt); transition: border-color 0.15s; background: var(--concrete); }
+    .form-label {
+      display: block; font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--dust); margin-bottom: 6px;
+    }
+    .form-label .optional { font-weight: 400; text-transform: none; letter-spacing: 0; color: #BBB; margin-left: 4px; }
+    textarea, input[type="text"] {
+      width: 100%; border: 1.5px solid #DDD; border-radius: 8px;
+      padding: 10px 13px; font-family: 'Inter', sans-serif; font-size: 0.88rem;
+      color: var(--asphalt); transition: border-color 0.15s; background: var(--concrete);
+    }
     textarea:focus, input:focus { outline: none; border-color: var(--sun); }
     textarea { resize: vertical; min-height: 80px; }
-    .location-status { font-size: 0.75rem; color: var(--dust); margin-top: 5px; }
-    .location-status.ok { color: #27AE60; }
-    .location-status.err { color: var(--pothole); }
+
     .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .cat-btn { border: 1.5px solid #DDD; border-radius: 7px; padding: 9px 10px; background: var(--concrete); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--asphalt); display: flex; align-items: center; gap: 7px; transition: border-color 0.15s, background 0.15s; }
+    .cat-btn {
+      border: 1.5px solid #DDD; border-radius: 8px; padding: 10px 10px;
+      background: var(--concrete); cursor: pointer; font-family: 'Inter', sans-serif;
+      font-size: 0.82rem; color: var(--asphalt); display: flex; align-items: center; gap: 8px;
+      transition: border-color 0.15s, background 0.15s;
+    }
     .cat-btn:hover { border-color: var(--sun); }
-    .cat-btn.selected { border-color: currentColor; font-weight: 500; }
+    .cat-btn.selected { border-color: currentColor; font-weight: 600; }
     .cat-btn[data-cat="pothole"].selected  { color: var(--pothole);  background: #fdf3f2; }
     .cat-btn[data-cat="light"].selected    { color: var(--light);    background: #fef9f0; }
     .cat-btn[data-cat="flood"].selected    { color: var(--flood);    background: #eaf4fb; }
@@ -90,41 +132,83 @@
     .cat-btn[data-cat="signage"].selected  { color: var(--signage);  background: #eafaf1; }
     .cat-btn[data-cat="other"].selected    { color: var(--other);    background: #f5f5f5; }
     .cat-color { width: 10px; height: 10px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-    .btn-submit { width: 100%; background: var(--asphalt); color: var(--white); border: none; border-radius: 8px; padding: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-top: 4px; }
-    .btn-submit:hover { background: #2d2d4e; }
-    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
-    .photo-drop { border: 2px dashed #DDD; border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; background: var(--concrete); }
+
+    /* photo drop */
+    .photo-drop {
+      border: 2px dashed #DDD; border-radius: 8px; padding: 18px;
+      text-align: center; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s; background: var(--concrete);
+    }
     .photo-drop:hover, .photo-drop.dragover { border-color: var(--sun); background: #fef9f0; }
     .photo-drop.has-file { border-color: var(--signage); background: #eafaf1; }
     .photo-drop-text { font-size: 0.8rem; color: var(--dust); margin-top: 4px; }
     .photo-preview-img { width: 100%; max-height: 140px; object-fit: cover; border-radius: 6px; margin-top: 8px; display: none; }
-    #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 3000; background: var(--asphalt); color: var(--white); padding: 10px 22px; border-radius: 24px; font-size: 0.84rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; font-family: 'Space Grotesk', sans-serif; border-left: 3px solid var(--sun); white-space: nowrap; }
+    .photo-hint { font-size: 0.72rem; color: var(--dust); margin-top: 5px; }
+
+    /* location row */
+    .loc-row { display: flex; gap: 8px; align-items: flex-start; }
+    .btn-loc {
+      flex-shrink: 0; background: var(--concrete); border: 1.5px solid #DDD;
+      border-radius: 8px; padding: 10px 14px; font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--asphalt);
+      transition: border-color 0.15s, background 0.15s; white-space: nowrap;
+    }
+    .btn-loc:hover { border-color: var(--sun); background: #fef9f0; }
+    .location-status { font-size: 0.75rem; color: var(--dust); margin-top: 5px; line-height: 1.4; }
+    .location-status.ok  { color: #27AE60; }
+    .location-status.err { color: var(--pothole); }
+
+    .btn-submit {
+      width: 100%; background: var(--asphalt); color: var(--white);
+      border: none; border-radius: 8px; padding: 13px;
+      font-family: 'Space Grotesk', sans-serif; font-size: 0.92rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s; margin-top: 4px;
+    }
+    .btn-submit:hover { background: #2d2d4e; }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* toast */
+    #toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 3000; background: var(--asphalt); color: var(--white); padding: 10px 22px; border-radius: 24px; font-size: 0.84rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; font-family: 'Space Grotesk', sans-serif; border-left: 3px solid var(--sun); white-space: nowrap; }
     #toast.show { opacity: 1; }
-    @media (max-width: 520px) { .stats-bar { display: none; } .brand-tag { display: none; } }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .stats-bar { display: none; }
+    }
+    @media (min-width: 641px) { .nav-drawer { display: none !important; } }
   </style>
 </head>
 <body>
 
-<header>
-  <a class="brand" href="index.html">
-    Fix<span class="brand-accent">&nbsp;El Paso</span>
-    <span class="brand-tag">Infrastructure Map</span>
-  </a>
-  <div class="header-actions">
-    <button class="btn-ghost" id="heatToggle" onclick="toggleHeat()">🌡 Heat Map</button>
-    <button class="btn-report" onclick="openModal()">+ Report Issue</button>
-    <button class="hamburger" onclick="openSidebar()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</header>
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="nav-brand">Fix<span> El Paso</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Map</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="about.html#contact">Contact</a></li>
+    <li><a href="index.html" class="nav-cta" onclick="openModal();return false;">+ Report Issue</a></li>
+  </ul>
+  <button class="nav-hamburger" onclick="toggleDrawer()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
 
-<!-- Loading screen — shown until Firebase resolves -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html" class="active">🗺️ Map</a>
+  <a href="about.html">ℹ️ About</a>
+  <a href="about.html#contact">✉️ Contact</a>
+  <a href="index.html" class="nav-cta" onclick="closeDrawer();openModal();return false;">+ Report Issue</a>
+</div>
+
+<!-- Loading -->
 <div id="map-loading">
   <div class="loading-spinner"></div>
   <div class="loading-text">Loading reports…</div>
 </div>
 
+<!-- Map -->
 <div id="map">
   <div class="stats-bar" id="statsBar"></div>
   <div class="legend">
@@ -138,38 +222,16 @@
   </div>
 </div>
 
-<!-- SIDEBAR -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <span class="sidebar-title">Fix <span style="color:var(--sun)">El Paso</span></span>
-    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
-  </div>
-  <div class="sidebar-section">
-    <div class="sidebar-label">Map</div>
-    <a class="sidebar-link" href="index.html"><span class="sidebar-link-icon">🗺️</span> View Map</a>
-    <button class="sidebar-link" style="width:100%;border:none;background:none;" onclick="closeSidebar();openModal()"><span class="sidebar-link-icon">📍</span> Report an Issue</button>
-    <button class="sidebar-link" style="width:100%;border:none;background:none;" onclick="closeSidebar();toggleHeat()"><span class="sidebar-link-icon">🌡</span> Toggle Heat Map</button>
-  </div>
-  <div class="sidebar-section">
-    <div class="sidebar-label">Pages</div>
-    <a class="sidebar-link" href="about.html"><span class="sidebar-link-icon">ℹ️</span> About</a>
-    <a class="sidebar-link" href="about.html#contact"><span class="sidebar-link-icon">✉️</span> Contact Us</a>
-  </div>
-  <div class="sidebar-footer">
-    Built by El Paso students<br>© Fix El Paso 2025
-  </div>
-</div>
-
-<!-- REPORT MODAL -->
+<!-- Report Modal -->
 <div class="modal-overlay" id="reportModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Report an Issue</div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
+
     <div class="form-group">
-      <label>Category</label>
+      <label class="form-label">Category</label>
       <div class="category-grid">
         <button class="cat-btn" data-cat="pothole"  onclick="selectCat(this)"><span class="cat-color"></span>Pothole</button>
         <button class="cat-btn" data-cat="light"    onclick="selectCat(this)"><span class="cat-color"></span>Streetlight</button>
@@ -179,41 +241,51 @@
         <button class="cat-btn" data-cat="other"    onclick="selectCat(this)"><span class="cat-color"></span>Other</button>
       </div>
     </div>
+
     <div class="form-group">
-      <label>Address / Intersection (optional)</label>
-      <input type="text" id="addressInput" placeholder="e.g. Mesa St & Doniphan Dr" />
-    </div>
-    <div class="form-group">
-      <label>Description</label>
+      <label class="form-label">Description <span class="optional">(optional)</span></label>
       <textarea id="descInput" placeholder="Describe the issue — size, severity, how long it's been there…"></textarea>
     </div>
+
     <div class="form-group">
-      <label>Photo (optional)</label>
+      <label class="form-label">Photo <span class="optional">(optional)</span></label>
       <div class="photo-drop" id="photoDrop"
            onclick="document.getElementById('photoInput').click()"
            ondragover="event.preventDefault();this.classList.add('dragover')"
            ondragleave="this.classList.remove('dragover')"
            ondrop="handleDrop(event)">
-        <div style="font-size:1.6rem">📷</div>
+        <div style="font-size:1.5rem">📷</div>
         <div class="photo-drop-text" id="photoDropText">Tap to add a photo</div>
         <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoSelect(this)" />
         <img id="photoPreview" class="photo-preview-img" alt="Preview" />
       </div>
-      <div style="font-size:0.72rem;color:var(--dust);margin-top:5px;" id="photoStatus"></div>
+      <div class="photo-hint" id="photoStatus"></div>
     </div>
+
     <div class="form-group">
-      <label>Your Location</label>
-      <button class="btn-ghost" style="width:100%;padding:9px;color:var(--asphalt);border-color:#CCC;" onclick="getLocation()">📍 Use my current location</button>
-      <div class="location-status" id="locStatus">Location not captured yet</div>
+      <label class="form-label">
+        Location
+        <span class="optional">(use GPS or type address below)</span>
+      </label>
+      <div class="loc-row">
+        <button class="btn-loc" onclick="getLocation()">📍 Use GPS</button>
+        <div style="flex:1">
+          <input type="text" id="addressInput" placeholder="Or type an address / intersection" oninput="onAddressInput()" />
+          <div class="location-status" id="locStatus">GPS not used — address is optional too</div>
+        </div>
+      </div>
     </div>
+
     <button class="btn-submit" id="submitBtn" onclick="submitReport()" disabled>Submit Report</button>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<!-- Leaflet -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
 <script>
 const CATS = {
   pothole:  { label:'Pothole',            color:'#E74C3C' },
@@ -231,7 +303,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 
 function makeIcon(color){
   return L.divIcon({className:'',
-    html:`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 24 32"><path d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20S24 21 24 12C24 5.37 18.63 0 12 0z" fill="${color}" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="5" fill="white" opacity="0.9"/></svg>`,
+    html:`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 24 32">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20S24 21 24 12C24 5.37 18.63 0 12 0z" fill="${color}" stroke="white" stroke-width="1.5"/>
+      <circle cx="12" cy="12" r="5" fill="white" opacity="0.9"/></svg>`,
     iconSize:[24,32],iconAnchor:[12,32],popupAnchor:[0,-34]});
 }
 
@@ -239,10 +313,11 @@ let allMarkers=[],heatLayer=null,heatActive=false;
 
 function addReport(r){
   const cat=CATS[r.cat]||CATS.other;
-  const imgHtml=r.photoUrl?`<a href="${r.photoUrl}" target="_blank"><img src="${r.photoUrl}" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin-top:8px;"/></a>`:'';
+  const imgHtml=r.photoUrl
+    ?`<a href="${r.photoUrl}" target="_blank"><img src="${r.photoUrl}" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin-top:8px;"/></a>`:'';
   const marker=L.marker([r.lat,r.lng],{icon:makeIcon(cat.color)}).bindPopup(`
     <strong style="font-family:'Space Grotesk',sans-serif;color:#1A1A2E">${cat.label}</strong>
-    <p style="margin:6px 0 0;font-size:0.82rem;color:#555">${r.desc}</p>
+    <p style="margin:6px 0 0;font-size:0.82rem;color:#555">${r.desc||''}</p>
     ${r.address?`<p style="margin:5px 0 0;font-size:0.75rem;color:#888">📍 ${r.address}</p>`:''}
     ${imgHtml}`);
   marker.addTo(map);
@@ -250,42 +325,47 @@ function addReport(r){
 }
 
 function buildHeatLayer(){
-  const pts=allMarkers.map(m=>[m.lat,m.lng,0.6]);
   if(heatLayer)map.removeLayer(heatLayer);
-  heatLayer=L.heatLayer(pts,{radius:35,blur:25,maxZoom:14,gradient:{0.3:'#2980B9',0.6:'#F39C12',1.0:'#E74C3C'}});
+  heatLayer=L.heatLayer(allMarkers.map(m=>[m.lat,m.lng,0.6]),{radius:35,blur:25,maxZoom:14,gradient:{0.3:'#2980B9',0.6:'#F39C12',1.0:'#E74C3C'}});
 }
 function toggleHeat(){
   heatActive=!heatActive;
-  const btn=document.getElementById('heatToggle');
-  if(heatActive){allMarkers.forEach(m=>map.removeLayer(m.marker));buildHeatLayer();heatLayer.addTo(map);btn.classList.add('active');}
-  else{if(heatLayer)map.removeLayer(heatLayer);allMarkers.forEach(m=>m.marker.addTo(map));btn.classList.remove('active');}
+  if(heatActive){allMarkers.forEach(m=>map.removeLayer(m.marker));buildHeatLayer();heatLayer.addTo(map);}
+  else{if(heatLayer)map.removeLayer(heatLayer);allMarkers.forEach(m=>m.marker.addTo(map));}
 }
 function updateStats(){
   const counts={};
   allMarkers.forEach(m=>counts[m.cat]=(counts[m.cat]||0)+1);
   document.getElementById('statsBar').innerHTML=Object.entries(counts).map(([cat,n])=>
-    `<div class="stat-pill"><div class="stat-dot" style="background:${CATS[cat].color}"></div><span class="stat-count">${n}</span> ${CATS[cat].label}</div>`).join('');
+    `<div class="stat-pill"><div class="stat-dot" style="background:${CATS[cat].color}"></div><span class="stat-count">${n}</span> ${CATS[cat].label}</div>`
+  ).join('');
 }
 
-// SIDEBAR
-function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebarOverlay').classList.add('open');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
+// ── NAV ──
+function toggleDrawer(){ document.getElementById('navDrawer').classList.toggle('open'); }
+function closeDrawer(){ document.getElementById('navDrawer').classList.remove('open'); }
 
-// REPORT MODAL
-let selectedCat=null,userLat=null,userLng=null,selectedPhotoFile=null;
-function openModal(){document.getElementById('reportModal').classList.add('open');}
-function closeModal(){document.getElementById('reportModal').classList.remove('open');resetForm();}
+// ── MODAL ──
+let selectedCat=null, userLat=null, userLng=null, selectedPhotoFile=null;
+
+function openModal(){ document.getElementById('reportModal').classList.add('open'); }
+function closeModal(){ document.getElementById('reportModal').classList.remove('open'); resetForm(); }
 document.getElementById('reportModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 function selectCat(btn){
   document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');selectedCat=btn.dataset.cat;checkReady();
+  btn.classList.add('selected'); selectedCat=btn.dataset.cat; checkReady();
 }
+
 function handlePhotoSelect(input){
-  const file=input.files[0]; if(!file)return;
+  const file=input.files[0]; if(!file) return;
+  // Warn if file is very large
+  if(file.size > 10*1024*1024){
+    document.getElementById('photoStatus').textContent='⚠️ File is large (>10MB) — upload may be slow.';
+  }
   selectedPhotoFile=file;
   const preview=document.getElementById('photoPreview');
-  preview.src=URL.createObjectURL(file);preview.style.display='block';
+  preview.src=URL.createObjectURL(file); preview.style.display='block';
   document.getElementById('photoDrop').classList.add('has-file');
   document.getElementById('photoDropText').textContent=file.name;
 }
@@ -296,30 +376,44 @@ function handleDrop(e){
   if(file&&file.type.startsWith('image/')){
     selectedPhotoFile=file;
     const preview=document.getElementById('photoPreview');
-    preview.src=URL.createObjectURL(file);preview.style.display='block';
+    preview.src=URL.createObjectURL(file); preview.style.display='block';
     document.getElementById('photoDrop').classList.add('has-file');
     document.getElementById('photoDropText').textContent=file.name;
   }
 }
+
 function getLocation(){
   const status=document.getElementById('locStatus');
-  status.className='location-status';status.textContent='Getting location…';
-  if(!navigator.geolocation){status.className='location-status err';status.textContent='Geolocation not supported.';return;}
+  status.className='location-status'; status.textContent='Getting location…';
+  if(!navigator.geolocation){ status.className='location-status err'; status.textContent='Geolocation not supported.'; return; }
   navigator.geolocation.getCurrentPosition(
-    pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;
+    pos=>{
+      userLat=pos.coords.latitude; userLng=pos.coords.longitude;
       status.className='location-status ok';
-      status.textContent=`✓ Got it (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;checkReady();},
-    ()=>{status.className='location-status err';status.textContent='Could not get location — check browser permissions.';}
+      status.textContent=`✓ GPS locked (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;
+      checkReady();
+    },
+    ()=>{ status.className='location-status err'; status.textContent='Could not get GPS — type an address instead.'; }
   );
 }
-function checkReady(){document.getElementById('submitBtn').disabled=!(selectedCat&&userLat);}
+
+// Address input also enables submit (location optional)
+function onAddressInput(){
+  checkReady();
+}
+
+// Submit enabled when category is selected — location/address are both optional
+function checkReady(){
+  document.getElementById('submitBtn').disabled = !selectedCat;
+}
+
 function resetForm(){
   selectedCat=userLat=userLng=selectedPhotoFile=null;
   document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('addressInput').value='';
   document.getElementById('descInput').value='';
   document.getElementById('locStatus').className='location-status';
-  document.getElementById('locStatus').textContent='Location not captured yet';
+  document.getElementById('locStatus').textContent='GPS not used — address is optional too';
   document.getElementById('submitBtn').disabled=true;
   document.getElementById('photoPreview').style.display='none';
   document.getElementById('photoPreview').src='';
@@ -328,36 +422,74 @@ function resetForm(){
   document.getElementById('photoInput').value='';
   document.getElementById('photoStatus').textContent='';
 }
+
 async function submitReport(){
-  const desc=document.getElementById('descInput').value.trim()||'No description provided.';
-  const address=document.getElementById('addressInput').value.trim();
-  const btn=document.getElementById('submitBtn');
-  btn.disabled=true;btn.textContent='Submitting…';
+  const desc   = document.getElementById('descInput').value.trim()||'No description provided.';
+  const address= document.getElementById('addressInput').value.trim();
+  const btn    = document.getElementById('submitBtn');
+  const status = document.getElementById('photoStatus');
+  btn.disabled=true; btn.textContent='Submitting…';
+
   let photoUrl=null;
-  if(selectedPhotoFile&&window._uploadPhoto){
-    document.getElementById('photoStatus').textContent='Uploading photo…';
-    try{photoUrl=await window._uploadPhoto(selectedPhotoFile);}
-    catch(e){console.warn('Photo upload failed:',e);document.getElementById('photoStatus').textContent='Photo upload failed, submitting without photo.';}
+
+  // Only attempt photo upload if Firebase Storage is ready
+  if(selectedPhotoFile && window._uploadPhoto){
+    status.textContent='Uploading photo…';
+    try{
+      // 30 second timeout on photo upload
+      const uploadPromise = window._uploadPhoto(selectedPhotoFile);
+      const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),30000));
+      photoUrl = await Promise.race([uploadPromise, timeoutPromise]);
+      status.textContent='';
+    } catch(e){
+      const msg = e.message==='timeout' ? 'Photo upload timed out — submitting without photo.' : 'Photo upload failed — submitting without photo.';
+      status.textContent=msg;
+      console.warn('Photo upload issue:',e);
+      // Continue without photo rather than getting stuck
+    }
+  } else if(selectedPhotoFile && !window._uploadPhoto){
+    status.textContent='Storage not ready — submitting without photo.';
   }
-  const report={lat:userLat,lng:userLng,cat:selectedCat,desc,address,photoUrl,timestamp:new Date()};
+
+  // Use GPS coords if available, otherwise null (address-only report)
+  const report = {
+    lat: userLat || null,
+    lng: userLng || null,
+    cat: selectedCat, desc, address,
+    photoUrl, timestamp: new Date()
+  };
+
   if(window._addReport){
-    try{await window._addReport(report);showToast('Report submitted — thank you! 🙌');}
-    catch(e){showToast('Error saving. Please try again.');btn.disabled=false;btn.textContent='Submit Report';console.error(e);return;}
+    try{
+      await window._addReport(report);
+      showToast('Report submitted — thank you! 🙌');
+    } catch(e){
+      showToast('Error saving. Please try again.');
+      btn.disabled=false; btn.textContent='Submit Report';
+      console.error(e); return;
+    }
   } else {
-    addReport(report);updateStats();showToast('Demo mode — pinned locally');
+    // Demo: only pin if we have coordinates
+    if(userLat) { addReport(report); updateStats(); }
+    showToast('Demo mode — report saved locally');
   }
-  closeModal();map.setView([userLat,userLng],15);
+  closeModal();
+  if(userLat) map.setView([userLat,userLng],15);
 }
+
 function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 
+<!-- Firebase module — loads async, never blocks the map -->
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
-import {getFirestore,collection,addDoc,query,orderBy,onSnapshot} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
-import {getStorage,ref,uploadBytes,getDownloadURL} from "https://www.gstatic.com/firebasejs/11.9.0/firebase-storage.js";
+import {initializeApp}   from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+import {getFirestore,collection,addDoc,query,orderBy,onSnapshot}
+                         from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
+import {getStorage,ref,uploadBytes,getDownloadURL}
+                         from "https://www.gstatic.com/firebasejs/11.9.0/firebase-storage.js";
 
 const config={
   apiKey:"AIzaSyDr0KizTV4pNPV2NAff2JpCPkFh3WjeKz0",
@@ -367,43 +499,65 @@ const config={
   messagingSenderId:"316586721705",
   appId:"1:316586721705:web:30163116acb500dd82c4b8"
 };
-try{
-  const app=initializeApp(config);
-  const db=getFirestore(app);
-  const storage=getStorage(app);
 
-  window._addReport=report=>addDoc(collection(db,'reports'),report);
-  window._uploadPhoto=async(file)=>{
-    const storageRef=ref(storage,`photos/${Date.now()}_${file.name}`);
-    const snap=await uploadBytes(storageRef,file);
+try{
+  const app     = initializeApp(config);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+
+  window._addReport = report => addDoc(collection(db,'reports'),report);
+
+  window._uploadPhoto = async(file) => {
+    // Compress image client-side before upload if it's large
+    const compressed = await compressImage(file, 1200, 0.8);
+    const storageRef = ref(storage, `photos/${Date.now()}_${file.name.replace(/\s/g,'_')}`);
+    const snap = await uploadBytes(storageRef, compressed);
     return await getDownloadURL(snap.ref);
   };
 
-  // Listen for real reports — hide loading screen once first batch loads
   let firstLoad=true;
-  onSnapshot(query(collection(db,'reports'),orderBy('timestamp','desc')),snapshot=>{
+  onSnapshot(query(collection(db,'reports'),orderBy('timestamp','desc')), snapshot=>{
     snapshot.docChanges().forEach(change=>{
       if(change.type==='added'){
         const d={...change.doc.data(),id:change.doc.id};
-        addReport(d);
+        // Only add marker if we have coordinates
+        if(d.lat && d.lng) addReport(d);
       }
       if(change.type==='removed'){
-        const id=change.doc.id;
-        const idx=allMarkers.findIndex(m=>m.id===id);
+        const idx=allMarkers.findIndex(m=>m.id===change.doc.id);
         if(idx!==-1){map.removeLayer(allMarkers[idx].marker);allMarkers.splice(idx,1);}
       }
     });
     updateStats();
     if(heatActive)buildHeatLayer();
-    if(firstLoad){
-      firstLoad=false;
-      document.getElementById('map-loading').style.display='none';
-    }
+    if(firstLoad){ firstLoad=false; document.getElementById('map-loading').style.display='none'; }
   });
+
 } catch(e){
   console.warn('Firebase failed:',e);
-  // Show map even if Firebase fails
   document.getElementById('map-loading').style.display='none';
+}
+
+// Compress image before upload to avoid timeouts on large files
+function compressImage(file, maxPx, quality){
+  return new Promise(resolve=>{
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      let {width:w,height:h}=img;
+      if(w>maxPx||h>maxPx){
+        if(w>h){ h=Math.round(h*maxPx/w); w=maxPx; }
+        else   { w=Math.round(w*maxPx/h); h=maxPx; }
+      }
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(blob=>resolve(blob||file),'image/jpeg',quality);
+    };
+    img.onerror=()=>{ URL.revokeObjectURL(url); resolve(file); };
+    img.src=url;
+  });
 }
 </script>
 </body>
