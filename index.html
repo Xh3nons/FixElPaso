@@ -327,13 +327,21 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
     <div class="form-group">
       <label class="form-label">Location <span style="color:var(--orange);font-size:9px;letter-spacing:0.1em">(required)</span></label>
-      <div class="loc-row">
-        <button class="btn-loc" onclick="getLocation()">Use GPS</button>
-        <div style="flex:1;position:relative">
-          <input type="text" id="addressInput" placeholder="Type an address or intersection" oninput="onAddressInput()" autocomplete="off" />
-          <div id="autocomplete-list" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;background:#0d1014;border:1px solid rgba(255,255,255,0.1);border-top:none;max-height:180px;overflow-y:auto;"></div>
-          <div class="location-status" id="locStatus">GPS or address required</div>
+      <div style="margin-bottom:8px">
+        <button class="btn-loc" style="width:100%;margin-bottom:8px" onclick="getLocation()">Use My GPS Location</button>
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;text-align:center">— or enter intersection —</div>
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin-bottom:6px">
+          <div style="position:relative">
+            <input type="text" id="street1Input" placeholder="Street 1" oninput="onStreetInput(1)" autocomplete="off" />
+            <div id="autocomplete-list-1" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;background:#0d1014;border:1px solid rgba(255,255,255,0.1);border-top:none;max-height:160px;overflow-y:auto;"></div>
+          </div>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center">&amp;</span>
+          <div style="position:relative">
+            <input type="text" id="street2Input" placeholder="Street 2" oninput="onStreetInput(2)" autocomplete="off" />
+            <div id="autocomplete-list-2" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;background:#0d1014;border:1px solid rgba(255,255,255,0.1);border-top:none;max-height:160px;overflow-y:auto;"></div>
+          </div>
         </div>
+        <div class="location-status" id="locStatus">GPS or intersection required</div>
       </div>
     </div>
     <button class="btn-submit" id="submitBtn" onclick="submitReport()" disabled>Submit Report</button>
