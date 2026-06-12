@@ -544,7 +544,8 @@ async function submitReport(){
       await window._addReport(report);
       showToast('Report submitted — thank you.');
     }catch(e){
-      showToast('Error saving. Please try again.');
+      const msg = e?.code ? `${e.code}: ${e.message}` : String(e);
+      showToast(msg);
       btn.disabled=false; btn.textContent='Submit Report';
       console.error(e); return;
     }
